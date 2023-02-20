@@ -1,0 +1,56 @@
+<app-layout lang=`${input.html.lang}` dir=`${input.html.dir}` title=`${input.title}`>
+
+  <div class="login-client-image">
+  <if(input.client.logoUri)>
+    <img src=`${input.client.logoUri}` alt="logo" />
+  </if>
+  </div>
+
+<ul>
+<if([input.missingOIDCScope, input.missingOIDCClaims, input.missingResourceScopes].filter(Boolean).length === 0)>
+  <li>the client is asking you to confirm previously given authorization</li>
+</if>
+
+<if(input.missingOIDCScope)>
+  <li>scopes:</li>
+  <ul>
+    <for|scope, index, scopeList| of=input.missingOIDCScope>
+      <li>${scope}</li>
+    </for>
+  </ul>
+</if>
+
+<if(input.missingOIDCClaims.size)>
+  <li>claims:</li>
+  <ul>
+    <for|claim, index, claimList| of=input.missingOIDCClaims>
+      <li>${claim}</li>
+    </for>
+  </ul>
+</if>
+
+<if(input.missingResourceScopes)>
+  <for|indicator, scopes| in=input.missingResourceScopes>
+    <li>${indicator}:</li>
+    <ul>
+      <for|scope, index, scopeList| of=scopes>
+        <li>${scope}</li>
+      </for>
+    </ul>
+  </for>
+</if>
+
+<if(input.params.scope && input.params.scope.includes('offline_access'))>
+  <li>
+  the client is asking to have offline access to this authorization
+    <if(input.missingOIDCScope || !input.missingOIDCScope.includes('offline_access'))>
+      (which you've previously granted)
+    </if>
+  </li>
+</if>
+</ul>
+<form autocomplete="off" action=`/interaction/${input.uid}/confirm` method="post">
+  <button autofocus type="submit" class="login login-submit">Continue</button>
+</form>
+
+</app-layout>

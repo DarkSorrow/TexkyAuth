@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+  auth:
+    image: oidc:dev
+    ports:
+      - 8080:8080
+    working_dir: /app
+    build:
+      context: ./auth/
+      dockerfile: ./build-files/Dockerfile.dev
+    volumes:
+      - './auth:/app'
+      - /app/node_modules
+    environment:
+ #     DEBUG: '*'
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+      REDIS_HOST: "redis"
+      REDIS_PASSWORD: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
+      CASSANDRA_ENDPOINT_SEED: "cassandra:9042"
+    depends_on:
+     - cassandra
+     - redis
+  admin:
+    image: admin:dev
+    ports:
+      - 3000:3000
+    working_dir: /app
+    build:
+      context: ./app/
+      dockerfile: ./build-files/Dockerfile.dev
+    volumes:
+      - './app:/app'
+      - /app/node_modules
+    environment:
+      OIDC_URL: 'http://localhost:8080'
+      CLIENT_ID: 'ABCgWwsfyRQ0XRAE'
+      LOGOUT_URL: 'http://localhost:3000/connect/logout'
+      REDIRECT_URL: 'http://localhost:3000/connect/login'
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 1000
+  cassandra:
+    image: docker.io/bitnami/cassandra:latest
+    ports:
+      - 7000:7000
+      - 9042:9042
+    volumes:
+      - './db-data:/bitnami'
+      - './schema:/docker-entrypoint-initdb.d'
+#    healthcheck:
+ #      test: [ "CMD", "/opt/bitnami/cassandra/bin/cqlsh", "-u cassandra", "-p cassandra" ,"-e \"describe keyspaces\"" ]
+ #      interval: 15s
+ #      timeout: 10s
+ #      retries: 10
+    environment:
+    - discovery.type=single-node
+    - CASSANDRA_SEEDS=cassandra
+    - CASSANDRA_PASSWORD_SEEDER=yes
+    - CASSANDRA_PASSWORD=cassandra
+  redis:
+    image: redis:7.0-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+#--save 20 1 

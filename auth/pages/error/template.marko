@@ -1,0 +1,11 @@
+<app-layout lang=`${input.html.lang}` dir=`${input.html.dir}` title=`${input.title}`>
+  <article>
+    <header>
+      Oops! something went wrong (Code: ${input.statusCode})
+    </header>
+    ${input.error_description}
+    <footer>
+      <a href=`${input.goBack}` role="button">Back to main page</a>
+    </footer>
+  </article>
+</app-layout>

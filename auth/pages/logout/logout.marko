@@ -1,0 +1,22 @@
+<app-layout lang=`${input.html.lang}` dir=`${input.html.dir}` title=`${input.title}`>
+  <article>
+    <header>Header</header>
+    $!{input.form}
+    <if(input.auto === true)>
+    <script language="javascript" type="text/javascript">
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'logout';
+      input.value = 'yes';
+      document.getElementById('op.logoutForm').appendChild(input);
+      document.getElementById('op.logoutForm').submit();
+    </script>
+    </if>
+    <header>
+      <h1>${input.title}</h1>
+      <p>description</p>
+    </header>
+    <button type="submit" form="op.logoutForm" value="yes" name="logout" class="button">yes_move</button>
+    <button type="submit" form="op.logoutForm" class="button--alt">no_stay</button>
+  </article>
+</app-layout>
