@@ -13,6 +13,22 @@ docker compose -p texky build
 docker compose -p texky up
 ```
 
+## Directories
+
+The project will rely on the [account linking](https://developers.flow.com/account-linking) documentation in order to create child account to access a main application
+
+ 1. App: Administration part
+
+This is the interface were you can manage details related to your applications
+
+ 2. Auth: OpenID complient server
+
+This is the server that will create and manage account for your apps. It should respect the openID best practice and allow all protocol to be fully implemented in order to gain control of an account.
+
+ 3. Schema / db-data: Database related
+
+Data and schema related to the database.
+
 ## 🧐 Features    
 - Fully compliant openID connect server
 - Leverage zero knowledge concept to avoid sharing sensitive content
@@ -31,4 +47,4 @@ An application should be able to give its signature to some data given by a user
 - [Financial-grade API CIBA](https://openid.net/specs/openid-financial-api-ciba-ID1.html)
 
 ## ➤ License
-Distributed under the MIT License. See [LICENSE](LICENSE.txt) for more information.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
