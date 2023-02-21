@@ -26,7 +26,7 @@ import { useAuth } from '../../providers/auth';
 
 export const AppNavigation = () => {
   const { t } = useTranslation();
-  const { signOut } = useAuth();
+  const { signOut, idToken } = useAuth();
   const navigate = useNavigate();
   return (
     <List size="sm" sx={{ '--List-item-radius': '8px', '--List-gap': '4px' }}>
@@ -94,8 +94,7 @@ export const AppNavigation = () => {
             icon={<LogoutIcon fontSize="small" />}
             text={t<string>('logout')}
             onClick={() => {
-              console.log('logout');
-              signOut();
+              signOut(idToken);
               navigate('/');
             }}
           />

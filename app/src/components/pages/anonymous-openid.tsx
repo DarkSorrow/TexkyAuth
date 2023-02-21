@@ -73,6 +73,7 @@ export const CallbackOIDC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const abortController  = new AbortController();
     const initState = async () => {
       const redirectURL = encodeURIComponent(REDIRECT_URL);
       try {
@@ -83,6 +84,7 @@ export const CallbackOIDC = () => {
         // Query code from oidc endpoint
         let respFetch = await fetch(`${OIDC_URL}/token`, {
           method: "POST",
+          signal: abortController.signal,
           headers: {
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
             Accept: "application/json",
@@ -94,12 +96,11 @@ export const CallbackOIDC = () => {
           )}&code_verifier=${codeVerifier}&redirect_uri=${redirectURL}`,
         });
         const oidcPayload: OIDCPayload = await respFetch.json();
-        console.log(oidcPayload);
         await signIn(
           oidcPayload.access_token, oidcPayload.id_token,
           null, new Date(new Date().getTime() + oidcPayload.expires_in),
         );
-        navigate('/');
+        await navigate('/');
         // Once code is received we use it to get a platform user and its rights per legal
         /*respFetch = await fetch(`${constant.WS_URL}/bare/3/connect/openid`, {
           method: "POST",
@@ -128,6 +129,7 @@ export const CallbackOIDC = () => {
     initState();
     return () => {
       console.log("unmounting auth provider");
+      abortController.abort();
     };
     // get code and perform query to get child with code challenge etc...
   }, [search, signIn]);

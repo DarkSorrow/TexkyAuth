@@ -3,9 +3,9 @@ import { randomUUID } from 'crypto';
 import mount from "koa-mount";
 import serve from "koa-static";
 import { configure } from "lasso";
-import { promisify } from 'util';
+/*import { promisify } from 'util';
 // revisit after to create rules with clients origins
-import helmet from 'helmet';
+import helmet from 'helmet';*/
 
 import * as cassandra from './services/cassandra.js';
 import { redisClient } from './services/redis.js';
@@ -37,14 +37,14 @@ configure({
   fingerprintsEnabled: constant.isProduction // Only add fingerprints to URLs in production
 });
 
-const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
+/*const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
 delete directives['form-action'];
 const pHelmet = promisify(helmet({
   contentSecurityPolicy: {
     useDefaults: false,
     directives,
   },
-}));
+}));*/
 
 //Configure koa access with oidc
 const provider = new Provider(constant.issuer, oidcConfig);

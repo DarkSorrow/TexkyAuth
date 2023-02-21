@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 //import { nanoid } from 'nanoid';
 
 import { onError } from '../utils/functions';
-import { STORAGE_TOKEN, PREF_TOKEN } from "../utils/constants";
+import { STORAGE_TOKEN, PREF_TOKEN, OIDC_URL, REDIRECT_URL, CLIENT_ID, LOGOUT_URL } from "../utils/constants";
 import { Openi18nOption, AcountsGroup, LegalEntity } from '../types/Schemas';
 //import { nvFetch } from '../services/fetch';
 
@@ -35,6 +35,7 @@ const emptyLegal: LegalEntity = {
 type direction = "ltr" | "rtl";
 interface AuthState {
   userToken: string | null;
+  idToken: string | null;
   exp: Date | null;
   accounts: AcountsGroup | null;
   homeURL: string;
@@ -49,6 +50,7 @@ type AuthAction =
   | {
       type: "SIGN_IN";
       token: string | null;
+      idToken: string | null;
       accounts: any;
       exp: Date;
       homeURL: string;
@@ -78,11 +80,11 @@ type AuthAction =
 interface AuthContextActions {
   signIn: (
     token: string,
-    id_token: string,
+    idToken: string,
     accounts: any,
     expire: Date,
   ) => void;
-  signOut: () => void;
+  signOut: (idToken: string | null) => void;
   changeMenu: (openMenu: boolean) => void;
   changeLanguage: (language: string) => void;
   setLegalEntity: (legalEntity: LegalEntity) => void;
@@ -93,6 +95,7 @@ interface AuthContextType extends AuthState, AuthContextActions {}
 const AuthContext = createContext<AuthContextType>({
   status: "idle",
   userToken: null,
+  idToken: null,
   exp: null,
   accounts: null,
   homeURL: "",
@@ -119,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const parsedInfo = JSON.parse(info);
         //if (parsedInfo.exp <= new Date()) {
           arg.userToken = parsedInfo.token;
+          arg.idToken = parsedInfo.idToken;
           arg.exp = parsedInfo.exp;
           arg.accounts = parsedInfo.accounts;  
         //}
@@ -131,6 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(AuthReducer, {
     status: "idle",
     userToken: null,
+    idToken: null,
     accounts: null,
     exp: null,
     homeURL: "",
@@ -144,7 +149,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       signIn: async (
         token: string,
-        id_token: string,
+        idToken: string,
         accounts: any,
         expire: Date,
       ) => {
@@ -161,8 +166,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
           }
         }*/
+        console.log(idToken);
+        console.log(token);
         localStorage.setItem(STORAGE_TOKEN, JSON.stringify({
           token,
+          idToken,
           exp: expire,
           accounts,
         }));
@@ -170,17 +178,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch({
           type: "SIGN_IN",
           token,
+          idToken,
           accounts,
           exp: expire,
           homeURL: "",
         });
       },
-      signOut: async () => {
+      signOut: async (idToken: string | null) => {
         localStorage.clear();
-        await fetch('/Priv/logout', {
-          method: 'GET',
-        });
-        dispatch({ type: "SIGN_OUT" });
+        console.log('test idToken', idToken)
+        if (idToken) {
+          // Fix cors issue with cors check on session end
+          /*const form = new FormData();
+          form.append('client_id', CLIENT_ID);
+          form.append('post_logout_redirect_uri', LOGOUT_URL);
+          await fetch(`${OIDC_URL}/session/end`, {
+            method: 'POST',
+            body: form,
+          });*/
+          dispatch({ type: "SIGN_OUT" });
+          window.location.href = `${OIDC_URL}/session/end?client_id=${CLIENT_ID}&post_logout_redirect_uri=${encodeURIComponent(LOGOUT_URL)}`;
+        } else {
+          dispatch({ type: "SIGN_OUT" });
+          window.location.href = `${OIDC_URL}/session/end`;
+        }
+        //form.append('state', )
       },
       changeMenu: async (openMenu: boolean) => {
         dispatch({ type: "SWITCH_MENU", openMenu });
@@ -226,6 +248,7 @@ const AuthReducer = (prevState: AuthState, action: AuthAction): AuthState => {
         ...prevState,
         status: "signIn",
         userToken: action.token,
+        idToken: action.idToken,
         accounts: action.accounts,
         exp: action.exp,
         homeURL: action.homeURL,
@@ -235,6 +258,7 @@ const AuthReducer = (prevState: AuthState, action: AuthAction): AuthState => {
         ...prevState,
         status: "signOut",
         userToken: null,
+        idToken: null,
         accounts: null,
       };
     case "SWITCH_MENU":

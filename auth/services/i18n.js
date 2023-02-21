@@ -51,6 +51,7 @@ const parseHeader = (acceptLanguage) => {
 }
 
 const setRequestLanguage = (ctx) => {
+  // openID params should check 'ui_locales' ex: "fr-CA fr en"
   // check in querystring
   if ((ctx.request.query.lng) && (LANGUAGE_LIST[ctx.request.query.lng])) {
     ctx.cookies.set('i18next', ctx.request.query.lng, { signed: false, httpOnly: false });
