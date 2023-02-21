@@ -14,8 +14,6 @@ docker compose -p texky up
 # If you have problem with cassandra refusing to start do (not on a prod server)
 chmod 777 db-data
 # otherwise the user cassandra should have rights on this directory if you want to keep things clean
-# if you have a problem with entrypoint.sh on admin
-chmod 755 admin/entrypoint.sh
 ```
 
 ## FlowpenID connect
@@ -36,6 +34,10 @@ At first the `child account` would be created by the `master account` owning the
 ### Hackathon wanrning
 
 In order to acheive the sharing of contract between application and the user itself the claim were used as consent but in order to be compliant with standard this kind of action should fall inside the [FAPI](https://openid.net/wg/fapi/). A correct implementation would be to warn contract on creation that would be interacting with financial value. Other contract that wish to interact with health value should be implemented following the [HEART recommandations](https://openid.net/wg/heart/)
+
+### General warning
+
+The fact that an account could transfer to another account could create the problem of having the access to the account vulnerable with one application and having this application being exploited to send the ressources owned by the end user to another account (at least as long as its private key are used by a third party app). A way to mitigate this would be to add the option of multi factor authorisation for this action and / or a 3 days delay before the action is performed
 
 ## Directories
 
@@ -64,7 +66,8 @@ An application account will have the possibility of giving back the custody of t
 Each application account should have the possibility of using a zero knowledge proof information that will later allow them to share information with other applications and verify private informations.
 An application should be able to give its signature to some data given by a user which gets tagged in the data list itself and give a guarantee that this data is correct so other application requesting the information on that data can have a guarantee that this is correct. (this can be important for governement related check ex: going on website with age restriction when making a payment or have gated information about some event being produced)
 
-## 🙇 Acknowledgements      
+## 🙇 Acknowledgements
+- [Flow core contract](https://github.com/onflow/flow-core-contracts)
 - [Zero knowledge proof - ETH](https://ethereum.org/en/zero-knowledge-proofs/)
 - [ZKP StackExchange response](https://crypto.stackexchange.com/questions/81167/how-do-i-implement-zero-knowledge-proof)
 - [OpenID panva](https://github.com/panva/node-oidc-provider)
