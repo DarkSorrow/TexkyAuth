@@ -11,6 +11,11 @@ Secure authentication system leveraging flow blockchain resources concept ease o
 ```bash
 docker compose -p texky build
 docker compose -p texky up
+# If you have problem with cassandra refusing to start do (not on a prod server)
+chmod 777 db-data
+# otherwise the user cassandra should have rights on this directory if you want to keep things clean
+# if you have a problem with entrypoint.sh on admin
+chmod 755 admin/entrypoint.sh
 ```
 
 ## FlowpenID connect
