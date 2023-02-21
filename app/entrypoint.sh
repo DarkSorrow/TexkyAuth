@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ $NODE_ENV == "production" ]]; then
   envsubst < /app/env-config.js.dist > /usr/share/nginx/html/texky-app/config.js

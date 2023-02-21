@@ -1,5 +1,9 @@
 @import "../../node_modules/@picocss/pico/scss/pico.scss";
 
+$fa-font-path: "./fontawesome/webfonts/";
+@import "./fontawesome/scss/fontawesome.scss";
+@import "./fontawesome/scss/regular.scss";
+
 /* Green Light scheme (Default) */
 /* Can be forced with data-theme="light" */
 [data-theme="light"],

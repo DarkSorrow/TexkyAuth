@@ -1,4 +1,27 @@
-<header>
-  <img src="./logo.png" alt="marko logo" class="logo"/>
-  <div>${input.title}</div>
-</header>
+<nav class="container-fluid">
+  <ul>
+    <li><strong>Texky</strong></li>
+  </ul>
+  <ul>
+    <li>
+      <details role="list">
+        <summary aria-haspopup="listbox" role="link" class="secondary">Language</summary>
+        <ul role="listbox">
+          <li><a href="#">Preview</a></li>
+          <li><a href="#">Right-to-left</a></li>
+          <li><a href="#">Class-less</a></li>
+        </ul>
+      </details>
+    </li>
+    <li>
+      <details role="list">
+        <summary aria-haspopup="listbox" role="link" class="secondary">Theme</summary>
+        <ul role="listbox">
+          <li><a href="#" data-theme-switcher="auto">Auto</a></li>
+          <li><a href="#" data-theme-switcher="light">Light</a></li>
+          <li><a href="#" data-theme-switcher="dark">Dark</a></li>
+        </ul>
+      </details>
+    </li>
+  </ul>
+</nav>
