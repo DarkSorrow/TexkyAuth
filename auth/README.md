@@ -12,6 +12,13 @@ Secure authentication system leveraging flow blockchain resources concept ease o
 yarn install
 ```
 
+## Environement
+
+You need to create a .env file in this directory and add the three following key with their respective value
+ - FLOW_MAIN_PUBLIC=
+ - FLOW_MAIN_PRIVATE=
+ - FLOW_MAIN_ADDRESS=
+
 Le projet est de faire un serveur de login basé sur openID avec les informations du user sauvegardé dans une "ressource" sur la blockchain flow. On aura deux option de stockage
  1. On garde les private key sur notre backend (avec encryption et un truc a penser) et on "gere" le wallet du user chez nous
  2. On donne la possibilié au user de sauvegardé sa clef privée et on utilise le systeme de signature de message pour les interactions a la blockchain pour qu'il utilise son compte (transmission d'information...)

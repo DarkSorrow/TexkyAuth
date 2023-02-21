@@ -17,6 +17,7 @@ import { LANGUAGE_LIST, i18nInstances, setRequestLanguage } from './services/i18
 import loginFlow from './pages/login-flow/index.js';
 import homeRouter from './pages/home/index.js';
 
+console.log(constant);
 //Configure lasso bundle for marko templates
 configure({
   plugins: [

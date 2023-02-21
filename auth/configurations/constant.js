@@ -1,3 +1,7 @@
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
 const constant = {
   isProduction: process.env.NODE_ENV === 'production',
   issuer: process.env.ISSUER || 'http://localhost:8080',
@@ -23,6 +27,13 @@ const constant = {
     DISCOVERY_WALLET: (process.env.FLOW_DISCOVERY_WALLET) ? process.env.FLOW_DISCOVERY_WALLET.trim() : 'https://fcl-discovery.onflow.org/testnet/authn',
     NETWORK: (process.env.FLOW_NETWORK) ? process.env.FLOW_NETWORK.trim() : 'testnet',
   },
+  account: {
+    flowMain: {
+      public: (process.env.FLOW_MAIN_PUBLIC) ? process.env.FLOW_MAIN_PUBLIC.trim() : '',
+      private: (process.env.FLOW_MAIN_PRIVATE) ? process.env.FLOW_MAIN_PRIVATE.trim() : '',
+      address: (process.env.FLOW_MAIN_ADDRESS) ? process.env.FLOW_MAIN_ADDRESS.trim() : '',
+    } 
+  }
 };
 
 export default constant;
