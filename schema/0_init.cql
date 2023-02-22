@@ -56,7 +56,6 @@ CREATE TABLE IF NOT EXISTS account.chain_id (
 CREATE TABLE IF NOT EXISTS account.application ( 
     client_id timeuuid,
     client_secret text,
-    salt blob,
     suspended boolean,
     application_type text,
     logo_uri text,
