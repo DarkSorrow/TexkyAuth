@@ -1,0 +1,5 @@
+{
+  "long": { "signed": true, "maxAge": 86400000 },
+  "short": { "signed": true },
+  "keys": ["nfwG6u9JAdLMZ5osdfslcyrvwQRdoFIKPnO65Q8mh6F", "5mnU-Xpj75ezrQSGa9wunMlOoZW9w1wDO1FVuDhwzeOJaT"]
+}
