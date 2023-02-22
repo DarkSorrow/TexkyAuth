@@ -14,6 +14,7 @@ import { logger } from './services/logger.js';
 import oidcConfig from './configurations/oidc.js';
 import constant from './configurations/constant.js';
 import { LANGUAGE_LIST, i18nInstances, setRequestLanguage } from './services/i18n.js';
+import DefaultAdapter from './adapters/default_adapter.js';
 import loginFlow from './pages/login-flow/index.js';
 import homeRouter from './pages/home/index.js';
 
@@ -48,7 +49,7 @@ const pHelmet = promisify(helmet({
 }));*/
 
 //Configure koa access with oidc
-const provider = new Provider(constant.issuer, oidcConfig);
+const provider = new Provider(constant.issuer, { DefaultAdapter, ...oidcConfig });
 function handleClientAuthErrors(ctx, err) {
   logger.error({
     err,

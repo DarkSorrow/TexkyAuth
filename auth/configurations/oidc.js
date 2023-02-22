@@ -2,6 +2,8 @@ import { errors } from 'oidc-provider'
 import { errorMiddleware } from '../pages/error/index.js';
 import { logoutMiddleware, logoutSuccessMiddleware } from '../pages/logout/index.js';
 import Account from '../services/account.js';
+// Should be taken from a Vault
+import cookies from './json/cookies.json' assert { type: 'json' };
 
 // Scope for ressources could be useful for asking contracts abilities before FAPI
 // https://github.com/panva/node-oidc-provider/blob/main/recipes/dynamic_op_scope.md
@@ -56,9 +58,7 @@ const configuration = {
     // you may also allow some known internal origins if you want to
     return client['cors_origins'].includes(origin);
   },
-  cookies: {
-    keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
-  },
+  cookies,
   claims: {
     address: ['address'],
     email: ['email', 'email_verified'],

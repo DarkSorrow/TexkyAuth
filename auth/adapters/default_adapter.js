@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty.js';
+
 import { logger } from '../services/logger.js';
 import { redisClient } from '../services/redis.js';
 
