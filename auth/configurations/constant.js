@@ -6,6 +6,16 @@ const constant = {
   isProduction: process.env.NODE_ENV === 'production',
   issuer: process.env.ISSUER || 'http://localhost:8080',
   port: process.env.PORT ? parseInt(process.env.PORT) : 8080,
+  social: {
+    facebook: {
+      id: (process.env.FACEBOOK_ID) ? process.env.FACEBOOK_ID.trim() : '',
+      secret: (process.env.FACEBOOK_SECRET) ? process.env.FACEBOOK_SECRET.trim() : ''
+    },
+    google: {
+      id: (process.env.GOOGLE_ID) ? process.env.GOOGLE_ID.trim() : '',
+      secret: (process.env.GOOGLE_SECRET) ? process.env.GOOGLE_SECRET.trim() : ''
+    }
+  },
   database: {
     contactPoints: [
       (process.env.CASSANDRA_ENDPOINT_SEED) ? process.env.CASSANDRA_ENDPOINT_SEED.trim() : 'localhost:9042',

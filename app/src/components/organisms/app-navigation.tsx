@@ -1,13 +1,8 @@
-import Box from '@mui/joy/Box';
 import IconButton from '@mui/joy/IconButton';
 import List from '@mui/joy/List';
 import ListSubheader from '@mui/joy/ListSubheader';
 import ListItem from '@mui/joy/ListItem';
-import ListItemButton from '@mui/joy/ListItemButton';
-import ListItemDecorator from '@mui/joy/ListItemDecorator';
-import ListItemContent from '@mui/joy/ListItemContent';
 import { useTranslation } from "react-i18next";
-import { useNavigate } from 'react-router';
 
 // Icons import
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -22,12 +17,12 @@ import { AppListButton } from '../atoms/app-list-button';
 import { AppLangMenu } from '../atoms/app-lang-menu';
 import { AppWalletConnect } from '../molecules/app-wallet-connect';
 import { useAuth } from '../../providers/auth';
+import { OIDC_URL, CLIENT_ID, LOGOUT_URL } from "../../utils/constants";
 
 
 export const AppNavigation = () => {
   const { t } = useTranslation();
-  const { signOut, idToken } = useAuth();
-  const navigate = useNavigate();
+  const { idToken } = useAuth();
   return (
     <List size="sm" sx={{ '--List-item-radius': '8px', '--List-gap': '4px' }}>
       <ListItem nested>
@@ -94,8 +89,19 @@ export const AppNavigation = () => {
             icon={<LogoutIcon fontSize="small" />}
             text={t<string>('logout')}
             onClick={() => {
-              signOut(idToken);
-              navigate('/');
+              if (idToken) {
+                // Fix cors issue with cors check on session end
+                /*const form = new FormData();
+                form.append('client_id', CLIENT_ID);
+                form.append('post_logout_redirect_uri', LOGOUT_URL);
+                await fetch(`${OIDC_URL}/session/end`, {
+                  method: 'POST',
+                  body: form,
+                });*/
+                window.location.href = `${OIDC_URL}/session/end?client_id=${CLIENT_ID}&post_logout_redirect_uri=${encodeURIComponent(LOGOUT_URL)}`;
+              } else {
+                window.location.href = `${OIDC_URL}/session/end`;
+              }
             }}
           />
         </List>

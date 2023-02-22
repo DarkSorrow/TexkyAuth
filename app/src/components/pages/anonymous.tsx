@@ -8,7 +8,7 @@ import { AnonymousHeader } from '../organisms/anonymous-header';
 import { ErrorNotFoundPage } from './error-not-found';
 import { AnonymousHomePage } from './anonymous-home';
 import { AnonymousContactPage } from './anonymous-contact';
-import { RedirectOIDC, RedirectSignupOIDC, CallbackOIDC, CallbackLogout } from './anonymous-openid';
+import { RedirectOIDC, RedirectSignupOIDC, CallbackOIDC } from './anonymous-openid';
 import { CommonFormPage } from './common-form';
 
 export const AnonymousPage = () => {
@@ -18,7 +18,6 @@ export const AnonymousPage = () => {
     <Routes>
       <Route path="/connect" element={<RedirectOIDC />} />
       <Route path="/connect/login" element={<CallbackOIDC />} />
-      <Route path="/connect/logout" element={<CallbackLogout />} />
       <Route path="/connect/signup" element={<RedirectSignupOIDC />} />
       <Route path="/" element={
           <AnonymousTemplate 

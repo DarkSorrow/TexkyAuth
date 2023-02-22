@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import CircularProgress from '@mui/joy/CircularProgress';
 import Alert from '@mui/joy/Alert';
 import Stack from '@mui/joy/Stack';
@@ -101,25 +101,6 @@ export const CallbackOIDC = () => {
           null, new Date(new Date().getTime() + oidcPayload.expires_in),
         );
         await navigate('/');
-        // Once code is received we use it to get a platform user and its rights per legal
-        /*respFetch = await fetch(`${constant.WS_URL}/bare/3/connect/openid`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            access_token: oidcPayload.access_token,
-            with_legal_entities: true,
-          }),
-        });
-        const userPayload: UserPayload = await respFetch.json();*/
-        /*signIn(
-          userPayload.token,
-          userPayload.legalEntitiesRoles,
-          params.get("state"),
-          oidcPayload.id_token
-        );*/
       } catch (err) {
         setLoading(false);
         console.log(err);
@@ -132,7 +113,7 @@ export const CallbackOIDC = () => {
       abortController.abort();
     };
     // get code and perform query to get child with code challenge etc...
-  }, [search, signIn]);
+  }, [search, signIn, navigate]);
 
   // return <div>Signing you in...</div>;
   if (!loading)
@@ -160,10 +141,12 @@ export const CallbackOIDC = () => {
 };
 
 export const CallbackLogout = () => {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   useEffect(() => {
-    // check if start with app_dev.php then append
-    window.location.href = window.location.origin;
-  }, []);
+    signOut();
+    navigate('/');
+  }, [signOut, navigate]);
 
   // return <div>Logout completed...</div>;
   return (

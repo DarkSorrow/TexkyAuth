@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Routes, Route } from "react-router-dom";
 
 import { AppHeader } from '../organisms/app-header';
+import { CallbackLogout } from './anonymous-openid';
 import { AppNavigation } from '../organisms/app-navigation';
 import { AppTemplate } from '../templates/app';
 import { ErrorNotFoundPage } from './error-not-found';
@@ -29,6 +30,7 @@ const AppPage = () => {
           <Route index element={<AppHomePage />} />
           <Route path="dashboard/*" element={<AppHomePage />} />
           <Route path="schemas/*" element={<AppSchemasPage />} />
+          <Route path="/connect/logout" element={<CallbackLogout />} />
           <Route path="forms/:company/:topic/:subject/:version" element={<CommonFormPage />} />
           <Route path="schemas/topic/:topic/:subject" element={<AppEditSchemaPage />} />
           <Route path="market" element={<AppMarketPage />} />

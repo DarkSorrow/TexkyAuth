@@ -2,7 +2,10 @@ import { errors } from 'oidc-provider'
 import { errorMiddleware } from '../pages/error/index.js';
 import { logoutMiddleware, logoutSuccessMiddleware } from '../pages/logout/index.js';
 import Account from '../services/account.js';
-// https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#basic-configuration-example
+
+// Scope for ressources could be useful for asking contracts abilities before FAPI
+// https://github.com/panva/node-oidc-provider/blob/main/recipes/dynamic_op_scope.md
+
 const isOrigin = (value) => {
   if (typeof value !== 'string') {
     return false;

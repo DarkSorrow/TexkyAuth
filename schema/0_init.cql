@@ -73,12 +73,12 @@ CREATE TABLE IF NOT EXISTS account.application (
     grant_types set<text>,
     default_acr set<text>,
     post_logout_redirect_uris set<text>,
+    cors_allowed set<text>,
     notif_params_json text,
     consent_flow tinyint,
     flow_custody tinyint,
     flow_account_creation text,
     flow_contracts map<text, text>,
-    created_at timestamp,
     updated_at timestamp,
     PRIMARY KEY (client_id)
 );

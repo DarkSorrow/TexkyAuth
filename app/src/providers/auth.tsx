@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 //import { nanoid } from 'nanoid';
 
 import { onError } from '../utils/functions';
-import { STORAGE_TOKEN, PREF_TOKEN, OIDC_URL, REDIRECT_URL, CLIENT_ID, LOGOUT_URL } from "../utils/constants";
+import { STORAGE_TOKEN, PREF_TOKEN } from "../utils/constants";
 import { Openi18nOption, AcountsGroup, LegalEntity } from '../types/Schemas';
 //import { nvFetch } from '../services/fetch';
 
@@ -84,7 +84,7 @@ interface AuthContextActions {
     accounts: any,
     expire: Date,
   ) => void;
-  signOut: (idToken: string | null) => void;
+  signOut: () => void;
   changeMenu: (openMenu: boolean) => void;
   changeLanguage: (language: string) => void;
   setLegalEntity: (legalEntity: LegalEntity) => void;
@@ -184,24 +184,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           homeURL: "",
         });
       },
-      signOut: async (idToken: string | null) => {
+      signOut: async () => {
         localStorage.clear();
-        console.log('test idToken', idToken)
-        if (idToken) {
-          // Fix cors issue with cors check on session end
-          /*const form = new FormData();
-          form.append('client_id', CLIENT_ID);
-          form.append('post_logout_redirect_uri', LOGOUT_URL);
-          await fetch(`${OIDC_URL}/session/end`, {
-            method: 'POST',
-            body: form,
-          });*/
-          dispatch({ type: "SIGN_OUT" });
-          window.location.href = `${OIDC_URL}/session/end?client_id=${CLIENT_ID}&post_logout_redirect_uri=${encodeURIComponent(LOGOUT_URL)}`;
-        } else {
-          dispatch({ type: "SIGN_OUT" });
-          window.location.href = `${OIDC_URL}/session/end`;
-        }
+        dispatch({ type: "SIGN_OUT" });
         //form.append('state', )
       },
       changeMenu: async (openMenu: boolean) => {
