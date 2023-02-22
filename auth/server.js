@@ -17,6 +17,8 @@ import { LANGUAGE_LIST, i18nInstances, setRequestLanguage } from './services/i18
 import DefaultAdapter from './adapters/default_adapter.js';
 import loginFlow from './pages/login-flow/index.js';
 import homeRouter from './pages/home/index.js';
+import apiApplicationRouter from './api/application.js';
+import apiFlowRouter from './api/flow.js';
 
 console.log(constant);
 //Configure lasso bundle for marko templates
@@ -129,6 +131,8 @@ if (constant.isProduction) {
 // Add the routes
 provider.use(loginFlow(provider).routes());
 provider.use(homeRouter.routes());
+provider.use(apiApplicationRouter.routes());
+provider.use(apiFlowRouter.routes());
 // Start the server
 const server = provider.listen(constant.port, () => {
   logger.warn(`oidc-provider listening on port ${constant.port}, check ${constant.issuer}/.well-known/openid-configuration`);
