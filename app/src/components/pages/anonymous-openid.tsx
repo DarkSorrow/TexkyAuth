@@ -96,6 +96,18 @@ export const CallbackOIDC = () => {
           )}&code_verifier=${codeVerifier}&redirect_uri=${redirectURL}`,
         });
         const oidcPayload: OIDCPayload = await respFetch.json();
+
+        respFetch = await fetch(`${OIDC_URL}/me`, {
+          method: "GET",
+          signal: abortController.signal,
+          headers: {
+            "Authorization": `Bearer ${oidcPayload.access_token}`,
+            Accept: "application/json",
+          },
+        });
+        const userInfo: any = await respFetch.json();
+        console.log('userinfo:', userInfo);
+
         await signIn(
           oidcPayload.access_token, oidcPayload.id_token,
           null, new Date(new Date().getTime() + oidcPayload.expires_in),

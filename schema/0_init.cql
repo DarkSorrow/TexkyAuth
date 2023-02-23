@@ -105,3 +105,66 @@ CREATE TABLE IF NOT EXISTS account.consent_subject (
     last_update timestamp,
     PRIMARY KEY (subject, client_id) 
 );
+
+CREATE TABLE IF NOT EXISTS account.consent_subject (
+    subject timeuuid,
+    client_id timeuuid,
+    flow_account text,
+    flow_custody tinyint,
+    consent text,
+    extra frozen<map<text, text>>,
+    last_update timestamp,
+    PRIMARY KEY (subject, client_id) 
+);
+
+CREATE TABLE IF NOT EXISTS account.legal_entity (
+    id timeuuid PRIMARY KEY,
+    additional_address text,
+    city text,
+    country text,
+    creator timeuuid,
+    email text,
+    legal frozen<map<text, text>>,
+    logojson blob,
+    name text,
+    phone text,
+    phone_country text,
+    postal_code text,
+    region text,
+    shards text,
+    street_address text,
+    updated_at timestamp,
+    updated_by timeuuid,
+    extra map<text, text>,
+    paid_options map<text, text>,
+    shards_history set<text>
+);
+
+CREATE TABLE IF NOT EXISTS account.legal_groups (
+    legal_id timeuuid,
+    subject timeuuid,
+    groups text,
+    display_name text,
+    updated_at timestamp,
+    updated_by timeuuid,
+    PRIMARY KEY (legal_id, subject, groups)
+) WITH CLUSTERING ORDER BY (subject ASC, groups ASC);
+
+CREATE TABLE IF NOT EXISTS account.legal_pending (
+    email text,
+    legal_id timeuuid,
+    groups text,
+    display_name text,
+    updated_at timestamp,
+    updated_by timeuuid,
+    PRIMARY KEY (email, legal_id, groups)
+) WITH CLUSTERING ORDER BY (legal_id ASC, groups ASC);
+
+CREATE TABLE IF NOT EXISTS account.subject_groups (
+    subject timeuuid,
+    legal_id timeuuid,
+    display_name text,
+    pref frozen<map<text, text>>,
+    groups set<text>,
+    PRIMARY KEY (subject, legal_id)
+);

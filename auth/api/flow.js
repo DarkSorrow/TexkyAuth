@@ -22,10 +22,15 @@ const router = new Router();
 // Move a child from a parent account to a new account
 router.post('/api/flow/child/move', (ctx) => {
   // ctx.flow <- flowClient
-  
+  console.log(ctx.oidc)
   ctx.body = {};
 });
+/*
+https://github.com/panva/node-oidc-provider/blob/433d131989558e24c0c74970d2d700af2199485d/lib/actions/userinfo.js
+const accessToken = await ctx.oidc.provider.AccessToken.find(accessTokenValue);
 
+    ctx.assert(accessToken, new InvalidToken('access token not found'));
+*/
 // List account that the current logged user can use [own accounts, app accounts]
 router.get('/api/flow/my/accounts', (ctx) => {
   ctx.body = {};
