@@ -1,7 +1,17 @@
 // Add application endpoint management (helper but should rely on oidc later)
 import Router from 'koa-router';
+import { 
+  HashAlgorithm,
+  InMemoryECSigner,
+  SignatureAlgorithm,
+  InMemoryECPrivateKey,
+  TransactionAuthorizer
+} from '../forked/freshmint.js';
+import constant from '../configurations/constant.js';
 
 const router = new Router();
+
+// https://testnet.flowscan.org/
 
 // https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/wallet-provider-spec/provable-authn.md
 // https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/wallet-provider-spec/authorization-function.md
@@ -19,6 +29,53 @@ router.post('/api/flow/child/move', (ctx) => {
 // List account that the current logged user can use [own accounts, app accounts]
 router.get('/api/flow/my/accounts', (ctx) => {
   ctx.body = {};
+});
+
+// Move to flow service if working
+const privateKey = InMemoryECPrivateKey.fromHex(
+  constant.account.flowMain.private,
+  SignatureAlgorithm.ECDSA_P256
+);
+const signer = new InMemoryECSigner(privateKey, HashAlgorithm.SHA3_256);
+const ownerAuthorizer = new TransactionAuthorizer({
+  address: constant.account.flowMain.address,
+  keyIndex: 0,
+  signer,
+});
+// end of flow service check
+
+const authz = ownerAuthorizer.toFCLAuthorizationFunction();
+
+router.get('/api/flow/account/create', async (ctx) => {
+
+  const transactionId = await ctx.flow
+    .send([
+      ctx.flow.transaction(
+        `transaction() {prepare(auth: AuthAccount) { log("hello")} }`
+      ),
+      ctx.flow.args([]),
+      ctx.flow.limit(9999),
+      ctx.flow.proposer(authz),
+      ctx.flow.payer(authz),
+      ctx.flow.authorizations([authz]),
+    ])
+    .then(ctx.flow.decode)
+  ctx.log.debug({
+    transactionId,
+  }, '[/api/flow/account/create]');
+  try {
+    const status = await ctx.flow
+      .tx({
+        transactionId,
+      })
+      .onceSealed();
+    ctx.body = status;
+  } catch (e) {
+    ctx.log.error({
+      err: e,
+    }, '[/api/flow/account/create]');
+    throw e;
+  }
 });
 
 export default router;

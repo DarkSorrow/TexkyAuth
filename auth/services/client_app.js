@@ -6,6 +6,19 @@
  * This class is used in the test as well so we can share the code for test purposes
  */
 
+export const AccountCustodyEnum = {
+  USER_CUSTODY: 0, // the user own the account
+  APP_CUSTODY: 1, // the application own the account
+  HYBRID_CUSTODY: 2, // both own the account
+}
+
+export const AccountChoiceCustodyEnum = {
+  USER_CHOICE: 0, // use can choose to create or use his own account
+  APP_ONLY: 1, // only the application can own the account
+  USER_ONLY: 2, // only the user can own the account
+  HYBRID_ONLY: 3, // both app and user must own the account
+}
+
 class ClientApplication {
   /**
      * Clean the properties of the client attribute for an update or an insert

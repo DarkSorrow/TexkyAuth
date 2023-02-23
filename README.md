@@ -82,6 +82,8 @@ If the token provided to applications are opaque, the user info endpoint should 
 #### Endpoints interacting with the flow blockchain
 
 The gosdk might be leverage with an added protection by token / authorization from the flowpenID ecosystem.
+For the hackathon the freshmint library with a few changes was used in order to keep things not too long until the end of the hackathon
+The aim after is to have whitelisted address in case of application custody applications allowing users and app to be more secured about where the external flow might go.
 
 ### Hackathon wanrning
 

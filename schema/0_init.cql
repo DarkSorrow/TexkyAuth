@@ -42,15 +42,15 @@ CREATE TABLE IF NOT EXISTS account.login_social (
 
 CREATE TABLE IF NOT EXISTS account.chain_id (
     chain_id int,
-    chain_name text,
     address text,
+    chain_name text,
     subject timeuuid,
     suspended boolean,
     provider_data_json text,
     created_at timestamp,
     updated_at timestamp,
     last_login timestamp,
-    PRIMARY KEY (network, address)
+    PRIMARY KEY (chain_id, address)
 );
 
 CREATE TABLE IF NOT EXISTS account.application ( 
@@ -86,9 +86,11 @@ CREATE TABLE IF NOT EXISTS account.consent_application (
     client_id timeuuid,
     subject timeuuid,
     flow_account text,
+    flow_parent_account text,
     flow_custody tinyint,
     consent text,
-    extra frozen<text, text>,
+    extra frozen<map<text, text>>,
+    whitelisted_addresses frozen<map<text, text>>,
     last_update timestamp,
     PRIMARY KEY (client_id, subject) 
 );
@@ -99,7 +101,7 @@ CREATE TABLE IF NOT EXISTS account.consent_subject (
     flow_account text,
     flow_custody tinyint,
     consent text,
-    extra frozen<text, text>,
+    extra frozen<map<text, text>>,
     last_update timestamp,
     PRIMARY KEY (subject, client_id) 
 );
