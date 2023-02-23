@@ -71,9 +71,7 @@ const configuration = {
     backchannelLogout: { enabled: true }, // defaults to false
     deviceFlow: { enabled: true }, // defaults to false
     jwtIntrospection: { enabled: true, ack: 'draft-09' }, // defaults to false
-    webMessageResponseMode: { enabled: true, ack: 'individual-draft-00' }, // defaults to false
     jwtResponseModes: { enabled: true }, // defaults to false
-    registration: { enabled: false }, // defaults to false
     revocation: { enabled: true }, // defaults to false
     claimsParameter: { enabled: false }, // defaults to false
     encryption: { enabled: true }, // defaults to false
