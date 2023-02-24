@@ -2,8 +2,10 @@ import { errors } from 'oidc-provider'
 import { errorMiddleware } from '../pages/error/index.js';
 import { logoutMiddleware, logoutSuccessMiddleware } from '../pages/logout/index.js';
 import Account from '../services/account.js';
+import loadExistingGrant from './loadExistingGrant.js';
 // Should be taken from a Vault
 import cookies from './json/cookies.json' assert { type: 'json' };
+import claims from './claims.js';
 
 // Scope for ressources could be useful for asking contracts abilities before FAPI
 // https://github.com/panva/node-oidc-provider/blob/main/recipes/dynamic_op_scope.md
@@ -58,14 +60,9 @@ const configuration = {
     // you may also allow some known internal origins if you want to
     return client['cors_origins'].includes(origin);
   },
+  loadExistingGrant,
   cookies,
-  claims: {
-    address: ['address'],
-    email: ['email', 'email_verified'],
-    phone: ['phone_number', 'phone_number_verified'],
-    profile: ['birthdate', 'family_name', 'gender', 'given_name', 'locale', 'middle_name', 'name',
-      'nickname', 'picture', 'preferred_username', 'profile', 'updated_at', 'website', 'zoneinfo'],
-  },
+  claims,
   features: {
     devInteractions: { enabled: false }, // defaults to true
     backchannelLogout: { enabled: true }, // defaults to false

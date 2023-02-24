@@ -1,6 +1,24 @@
 import * as dotenv from 'dotenv';
 
 dotenv.config();
+/**
+ * Allow us to create a state variable containing the client_id and uid used
+ * @param {*} ctx
+ */
+function createState(ctx) {
+  const rawState = {
+    uid: null,
+    params: null,
+  };
+  if (ctx.params && ctx.params.uid) {
+    rawState.uid = ctx.params.uid.replace('#', '');
+  }
+  rawState.params = ctx.query;
+  return Buffer.from(JSON.stringify(rawState)).toString('base64')
+    .replace('+', '-')
+    .replace('/', '_')
+    .replace(/=+$/, '');
+}
 
 const constant = {
   isProduction: process.env.NODE_ENV === 'production',
@@ -9,11 +27,44 @@ const constant = {
   social: {
     facebook: {
       id: (process.env.FACEBOOK_ID) ? process.env.FACEBOOK_ID.trim() : '',
-      secret: (process.env.FACEBOOK_SECRET) ? process.env.FACEBOOK_SECRET.trim() : ''
+      secret: (process.env.FACEBOOK_SECRET) ? process.env.FACEBOOK_SECRET.trim() : '',
+      config: (ctx) => {
+        return ({
+          scope: [
+            'email',
+          ],
+          session: false,
+          state: createState(ctx),
+        });
+      },
     },
     google: {
       id: (process.env.GOOGLE_ID) ? process.env.GOOGLE_ID.trim() : '',
-      secret: (process.env.GOOGLE_SECRET) ? process.env.GOOGLE_SECRET.trim() : ''
+      secret: (process.env.GOOGLE_SECRET) ? process.env.GOOGLE_SECRET.trim() : '',
+      config: (ctx) => ({
+        scope: [
+          'openid',
+          'profile',
+          'email',
+        ],
+        session: false,
+        state: createState(ctx), // state: ctx.params.uid,
+      }),
+    },
+    apple: {
+      id: {
+        client_id: (process.env.APPLE_ID) ? process.env.APPLE_ID.trim() : 'com.texky.flowpenid',
+        team_id: (process.env.APPLE_TEAM_ID) ? process.env.APPLE_TEAM_ID.trim() : 'test',
+        key_id: (process.env.APPLE_KEY_ID) ? process.env.APPLE_KEY_ID.trim() : 'test',
+      },
+      config: (ctx) => ({
+        scope: [
+          'name',
+          'email',
+        ],
+        session: false,
+        state: createState(ctx), // state: ctx.params.uid,
+      }),
     }
   },
   database: {

@@ -3,7 +3,6 @@ CREATE KEYSPACE IF NOT EXISTS account WITH replication = {'class':'SimpleStrateg
 // DROP TABLE IF EXISTS account.subject_account;
 CREATE TABLE account.subject_account ( 
     subject timeuuid,
-    region text,
     flow_account text,
     flow_key text,
     flow_rules blob,
@@ -54,7 +53,7 @@ CREATE TABLE IF NOT EXISTS account.chain_id (
 );
 
 CREATE TABLE IF NOT EXISTS account.application ( 
-    client_id timeuuid,
+    client_id text,
     client_secret text,
     suspended boolean,
     application_type text,
@@ -83,37 +82,22 @@ CREATE TABLE IF NOT EXISTS account.application (
 );
 
 CREATE TABLE IF NOT EXISTS account.consent_application ( 
-    client_id timeuuid,
+    client_id text,
     subject timeuuid,
-    flow_account text,
-    flow_parent_account text,
-    flow_custody tinyint,
-    consent text,
-    extra frozen<map<text, text>>,
-    whitelisted_addresses frozen<map<text, text>>,
-    last_update timestamp,
+    consent boolean,
+    detail_json text,
+    created_at timestamp,
+    updated_at timestamp,
     PRIMARY KEY (client_id, subject) 
 );
 
 CREATE TABLE IF NOT EXISTS account.consent_subject (
     subject timeuuid,
-    client_id timeuuid,
-    flow_account text,
-    flow_custody tinyint,
-    consent text,
-    extra frozen<map<text, text>>,
-    last_update timestamp,
-    PRIMARY KEY (subject, client_id) 
-);
-
-CREATE TABLE IF NOT EXISTS account.consent_subject (
-    subject timeuuid,
-    client_id timeuuid,
-    flow_account text,
-    flow_custody tinyint,
-    consent text,
-    extra frozen<map<text, text>>,
-    last_update timestamp,
+    client_id text,
+    consent boolean,
+    detail_json text,
+    created_at timestamp,
+    updated_at timestamp,
     PRIMARY KEY (subject, client_id) 
 );
 
@@ -151,13 +135,13 @@ CREATE TABLE IF NOT EXISTS account.legal_groups (
 ) WITH CLUSTERING ORDER BY (subject ASC, groups ASC);
 
 CREATE TABLE IF NOT EXISTS account.legal_pending (
-    email text,
+    subject timeuuid,
     legal_id timeuuid,
     groups text,
     display_name text,
     updated_at timestamp,
     updated_by timeuuid,
-    PRIMARY KEY (email, legal_id, groups)
+    PRIMARY KEY (subject, legal_id, groups)
 ) WITH CLUSTERING ORDER BY (legal_id ASC, groups ASC);
 
 CREATE TABLE IF NOT EXISTS account.subject_groups (

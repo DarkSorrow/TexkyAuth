@@ -34,6 +34,7 @@ const client = createClient({
 
 const BaseApp = () => {
   const { userToken } = useAuth();
+
   return (
     <CssVarsProvider theme={filesTheme}>
       <CssBaseline />

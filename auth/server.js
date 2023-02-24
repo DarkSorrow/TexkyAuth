@@ -17,8 +17,10 @@ import { LANGUAGE_LIST, i18nInstances, setRequestLanguage } from './services/i18
 import DefaultAdapter from './adapters/default_adapter.js';
 import loginFlow from './pages/login-flow/index.js';
 import homeRouter from './pages/home/index.js';
+import socialRouter from './pages/social/index.js';
 import apiApplicationRouter from './api/application.js';
 import apiFlowRouter from './api/flow.js';
+import errors from './services/error.js';
 
 console.log(constant);
 //Configure lasso bundle for marko templates
@@ -73,6 +75,7 @@ provider.app.context.log = logger;
 provider.app.context.cassandra = cassandra;
 provider.app.context.redis = redisClient;
 provider.app.context.flow = flowClient;
+provider.app.context.errors = errors;
 
 // Before logging information
 provider.use(mount("/static", serve("static")));
@@ -130,6 +133,7 @@ if (constant.isProduction) {
 
 // Add the routes
 provider.use(loginFlow(provider).routes());
+provider.use(socialRouter(provider).routes());
 provider.use(homeRouter.routes());
 provider.use(apiApplicationRouter.routes());
 provider.use(apiFlowRouter.routes());

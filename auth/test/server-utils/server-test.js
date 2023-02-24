@@ -38,7 +38,6 @@ router.get('/iframe', async (ctx, next) => {
   res.send(rpIframe);//http://localhost:8143/dev-test/register?software_id=homebyme
   /*replace(//id_token_hint=${ctx.request.query.id}&
       'http://localhost:8080/session/end',
-      `https://rel-account.by.me/session/end?post_logout_redirect_uri=${encodeURI('http://localhost:82/openid/logout')}&state=trdsqfqsdfue&auto=true`,
       )*/
 });
 const codeVerifier = nanoid(64);

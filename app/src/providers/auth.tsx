@@ -121,8 +121,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (info) {
         const parsedInfo = JSON.parse(info);
         //if (parsedInfo.exp <= new Date()) {
-          arg.userToken = parsedInfo.token;
-          arg.idToken = parsedInfo.idToken;
+          arg.userToken = parsedInfo.token || null;
+          arg.idToken = parsedInfo.idToken || null;
           arg.exp = parsedInfo.exp;
           arg.accounts = parsedInfo.accounts;  
         //}

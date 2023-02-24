@@ -3,16 +3,74 @@ import Router from 'koa-router';
 import { koaBody } from 'koa-body';
 import { strict as assert } from 'node:assert';
 import marko from "marko";
+import { nanoid } from 'nanoid';
 
 import Account from '../../services/account.js';
 import { sessionCheckMiddleware } from '../error/index.js';
-const loginTmpl = marko.load("./pages/login-flow/login.marko");
+export const loginTmpl = marko.load("./pages/login-flow/login.marko");
 const repostTmpl = marko.load("./pages/login-flow/repost.marko");
 const consentTmpl = marko.load("./pages/login-flow/consent.marko");
 
-const debug = (obj) => JSON.stringify(obj);
+const validateEmail = (email) => {
+  const structureEmail = email.split('@');
+  if (structureEmail.length !== 2) {
+    return (1);
+  }
+  if (structureEmail[1].indexOf(' ') !== -1) {
+    return (1);
+  }
+  const domainEmail = structureEmail[1].split('.');
+  if ((domainEmail.length < 2)
+        || (domainEmail[0].length === 0)
+        || (domainEmail[1].length === 0)
+        || (structureEmail[0].length === 0)) {
+    return (2);
+  }
+  return (0);
+}
+/**
+ * Helper definition to create validation functions
+ * @typedef ValidationError
+ * @type {object}
+ * @property {boolean} error - false by default, true if an error occured
+ * @property {Object.<string,string>} wrongData - List of object name with a string description ex: 'field': 'text'
+ */
+/**
+ * Check if the parameters passed in the register forms are well formed.
+ * @param {Object} body
+ * @return {ValidationError} Standard error object
+ */
+const registerValidator = (body) => {
+  const validation = {
+    error: false,
+    wrongData: {},
+  };
+  if (body.email && body.pwd) {
+    // dirty email validation
+    const emailCheck = validateEmail(body.email);
+    if (emailCheck !== 0) {
+      if (emailCheck === 2) {
+        validation.wrongData.email = 'Email is malformed, domain is not valid';
+        validation.error = true;
+      } else {
+        validation.wrongData.email = 'Email is malformed';
+        validation.error = true;
+      }
+    }
+    // password validation
+    if ((!body.pwd) || (body.pwd.length < 8)) {
+      validation.wrongData.pwd = 'Password length is too small, please use more than 8 characters';
+      validation.error = true;
+    }
+  } else {
+    validation.wrongData.fields = 'Missing parameters';
+    validation.error = true;
+  }
 
+  return (validation);
+}
 export default (provider) => {
+  
   const router = new Router();
   const body = koaBody({
     text: false, json: false, patchNode: true, patchKoa: true,
@@ -27,24 +85,18 @@ export default (provider) => {
       uid, prompt, params, session,
     } = await provider.interactionDetails(ctx.req, ctx.res);
     const client = await provider.Client.find(params.client_id);
+    if ((session) && (session.accountId)) {
+      ctx.request.app_sub = session.accountId;
+    }
 
     switch (prompt.name) {
       case 'login': {
         ctx.type = "html";
         ctx.body = loginTmpl.stream({
           html: ctx.state.html,
-          title: ctx.state.t('login.title'),
-          client,
+          title: ctx.state.t('loginFlow.title'),
+          csrf: nanoid(14),
           uid,
-          details: prompt.details,
-          params,
-          title: 'Sign-in',
-          google: ctx.google,
-          session: session ? debug(session) : undefined,
-          dbg: {
-            params: debug(params),
-            prompt: debug(prompt),
-          },
         });
         return;
       }
@@ -58,19 +110,13 @@ export default (provider) => {
         const missingResourceScopes = prompt.details.missingResourceScopes;
         ctx.body = consentTmpl.stream({
           html: ctx.state.html,
-          title: ctx.state.t('login.title'),
+          title: ctx.state.t('loginFlow.title'),
           client,
           uid,
           missingOIDCScope,
           missingOIDCClaims,
           missingResourceScopes,
           params,
-          title: 'Authorize',
-          session: session ? debug(session) : undefined,
-          dbg: {
-            params: debug(params),
-            prompt: debug(prompt),
-          },
         });
         return;
       }
@@ -83,7 +129,7 @@ export default (provider) => {
     const nonce = ctx.res.locals.cspNonce;
     ctx.body = repostTmpl.stream({
       html: ctx.state.html,
-      title: ctx.state.t('login.title'),
+      title: ctx.state.t('loginFlow.title'),
       layout: false,
       upstream: 'google',
       nonce,
@@ -92,20 +138,117 @@ export default (provider) => {
   });
 
   router.post('/interaction/:uid/login', body, async (ctx) => {
-    const { prompt: { name } } = await provider.interactionDetails(ctx.req, ctx.res);
-    assert.equal(name, 'login');
-
-    const account = await Account.findByLogin(ctx.request.body.login);
+    const { uid, params } = await provider.interactionDetails(ctx.req, ctx.res);
+    ctx.request.app_client = params.client_id;
+    let error = null;
+    let account = null;
+    if ((ctx.request.body.email) && (ctx.request.body.password)) {
+      account = await Account.findByLogin(ctx, params);
+    }
+    if (account === null) {
+      error = ctx.errors.getError('001');
+    }
+    if (account && account === false) {
+      error = ctx.errors.getError('004');
+    }
+    if (error !== null) {
+      ctx.type = 'html';
+      ctx.status = error.statusCode;
+      ctx.body = loginTmpl.stream({
+        html: ctx.state.html,
+        title: ctx.state.t('loginFlow.title'),
+        csrf: nanoid(14),
+        uid,
+        error,
+      });
+      return;
+    }
+    // debug purpose, remove later no tracking needed :D
+    Account.updateLastLogin(ctx, account.email);
 
     const result = {
       login: {
-        accountId: account.accountId,
+        accountId: account.subject,
+        acr: 'urn:mace:incommon:iap:bronze',
+        amr: [
+          'pwd',
+          account.mfa_type,
+          account.profile_location,
+          account.profile_update,
+        ],
+        ts: Math.floor(Date.now() / 1000),
+      },
+      meta: {
       },
     };
-
+    ctx.request.app_sub = account.subject;
     return provider.interactionFinished(ctx.req, ctx.res, result, {
       mergeWithLastSubmission: false,
     });
+  });
+
+  router.post('/interaction/:uid/register', body, async (ctx) => {
+    const { uid, params } = await provider.interactionDetails(ctx.req);
+    try {
+      // validate the data passed
+      const validation = registerValidator(ctx.request.body);
+      if (validation.error === true) {
+        // ( iID, iMoreInfo, iHTTPCode, iWrongData )
+        let error = ctx.errors.getError('002', validation.wrongData);
+        ctx.type = 'html';
+        ctx.response.status = error.statusCode;
+        ctx.body = loginTmpl.stream({
+          html: ctx.state.html,
+          title: ctx.state.t('loginFlow.title'),
+          register: true,
+          csrf: nanoid(14),
+          uid,
+          error,
+        });
+        return;
+      }
+      const account = await Account.registerAccount(ctx);
+      ctx.request.app_sub = account.subject;
+      ctx.request.app_client = params.client_id;
+      const result = {
+        login: {
+          accountId: account.subject, // TODO check what the account is used for
+          acr: 'urn:mace:incommon:iap:bronze',
+          amr: [
+            'reg',
+            false,
+            account.profile_location,
+            account.profile_update,
+          ],
+          ts: Math.floor(Date.now() / 1000),
+        },
+        meta: {
+        },
+      };
+      return provider.interactionFinished(ctx.req, ctx.res, result, {
+        mergeWithLastSubmission: false,
+      });
+    } catch (err) {
+      err.app_rid = ctx.request.app_rid;
+      let errorCode = '005';
+      if (err.message === 'ERR_UNIQUE') { // email exist
+        errorCode = '006';
+      } else {
+        ctx.log.error(err, '[Route::Registration::post]');
+      }
+      const error = ctx.errors.getError(errorCode);
+      ctx.type = 'html';
+      ctx.response.status = error.statusCode;
+      ctx.body = loginTmpl.stream({
+        html: ctx.state.html,
+        title: ctx.state.t('loginFlow.title'),
+        register: true,
+        csrf: nanoid(14),
+        uid,
+        error,
+      });
+      return;
+    }
   });
 
   router.post('/interaction/:uid/federated', body, async (ctx) => {
@@ -158,11 +301,12 @@ export default (provider) => {
   router.post('/interaction/:uid/confirm', body, async (ctx) => {
     const interactionDetails = await provider.interactionDetails(ctx.req, ctx.res);
     const { prompt: { name, details }, params, session: { accountId } } = interactionDetails;
+    ctx.request.byme_sub = accountId;
+    ctx.request.byme_client = params.client_id;
     assert.equal(name, 'consent');
 
     let { grantId } = interactionDetails;
     let grant;
-
     if (grantId) {
       // we'll be modifying existing grant in existing session
       grant = await provider.Grant.find(grantId);
@@ -173,7 +317,6 @@ export default (provider) => {
         clientId: params.client_id,
       });
     }
-
     if (details.missingOIDCScope) {
       grant.addOIDCScope(details.missingOIDCScope.join(' '));
     }
@@ -185,27 +328,120 @@ export default (provider) => {
         grant.addResourceScope(indicator, scope.join(' '));
       }
     }
-
     grantId = await grant.save();
-
+    const scopes = grant.openid.scope.split(' ');
+    const claims = [];
     const consent = {};
     if (!interactionDetails.grantId) {
       // we don't have to pass grantId to consent, we're just modifying existing one
       consent.grantId = grantId;
     }
-
-    const result = { consent };
+    let result = { consent };
+    const consentDetails = {
+      prevConsent: null,
+    };
+    consentDetails.prevConsent = await Account.findConsent(
+      ctx, accountId,
+      params.client_id,
+    );
+    try {
+      await Account.CreateOrUpdateConsent(ctx, consentDetails, {
+        subject: accountId,
+        client_id: params.client_id,
+        consent: true,
+        details: {
+          insertConsent: consentDetails.prevConsent === null,
+          rejectedScopes: result.consent.rejectedScopes,
+          rejectedClaims: result.consent.rejectedClaims,
+          promptedScopes: scopes,
+          promptedClaims: claims,
+          flow_account: '',
+          flow_parent_account: '',
+          flow_custody: 0,
+          whitelisted_addresses: {},
+        },
+      });
+    } catch (err) {
+      err.app_rid = ctx.request.app_rid;
+      ctx.log.error(err, '[Route::interaction_confirm::post]');
+      result = {
+        error: 'access_denied',
+        error_description: 'Internal server error',
+      };
+    }
     return provider.interactionFinished(ctx.req, ctx.res, result, {
       mergeWithLastSubmission: true,
     });
   });
 
   router.get('/interaction/:uid/abort', async (ctx) => {
+    const interactionDetails = await provider.interactionDetails(ctx.req, ctx.res);
+    const { prompt: { name, details }, params, session: { accountId } } = interactionDetails;
+    ctx.request.byme_sub = accountId;
+    ctx.request.byme_client = params.client_id;
     const result = {
       error: 'access_denied',
       error_description: 'End-User aborted interaction',
     };
+    await Account.CreateOrUpdateConsent(ctx, iDetails.prompt.details, {
+      subject: accountId,
+      client_id: params.client_id,
+      consent: false,
+      details: null,
+    });
+    return provider.interactionFinished(ctx.req, ctx.res, result, {
+      mergeWithLastSubmission: false,
+    });
+  });
 
+  router.get('/interaction/:uid/social/:strategy_id', async (ctx) => {
+    const details = await provider.interactionDetails(ctx.req);
+    ctx.request.app_client = details.params.client_id;
+    const multi = await ctx.redis.multi();
+    //The key is set in the route/social.js. The reason being that passport works with redirections
+    const key = `social:${details.uid}:${ctx.params.strategy_id}`;
+    multi.get(key);
+    multi.del(key);
+    let socialObject = await multi.exec();
+    try {
+      socialObject = JSON.parse(socialObject[0][1]);
+      if ((socialObject.xd !== ctx.query.xd)) {
+        // Log the ip calling this function and having errors because
+        // it might be an attempt to fish the values in the database
+        throw (new Error('Session not found'));
+      }
+      if (!socialObject.subject) {
+        throw (new Error(`Object parse error ${JSON.stringify(socialObject)}`));
+      }
+    } catch (err) {
+      err.app_rid = ctx.request.app_rid;
+      ctx.log.warn(err, '[GET:SocialLogin]');
+      return provider.interactionFinished(ctx.req, ctx.res, {
+        error: 'access_denied',
+        error_description: 'End-User social interaction login error',
+      }, {
+        mergeWithLastSubmission: false,
+      });
+    }
+    // might be useful but then against privacy
+    // Account.updateLastUseSocial(ctx, socialObject.provider_subject);
+    const result = {
+      login: {
+        accountId: socialObject.subject, // TODO check what the account is used for
+        acr: 'urn:mace:incommon:iap:bronze',
+        amr: [
+          `social:${ctx.params.strategy_id}`,
+          socialObject.mfa_type,
+          socialObject.profile_location,
+          socialObject.profile_update,
+        ],
+        ts: Math.floor(Date.now() / 1000),
+      },
+      meta: {
+      },
+    };
+    console.log("view result *********", result)
+    ctx.request.app_sub = socialObject.subject;
     return provider.interactionFinished(ctx.req, ctx.res, result, {
       mergeWithLastSubmission: false,
     });
