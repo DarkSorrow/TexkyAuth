@@ -1,5 +1,6 @@
 // Add application endpoint management (helper but should rely on oidc later)
 import Router from 'koa-router';
+import cors from '@koa/cors';
 import { 
   HashAlgorithm,
   InMemoryECSigner,
@@ -10,6 +11,14 @@ import {
 import constant from '../configurations/constant.js';
 
 const router = new Router();
+router.use(cors())
+
+router.options('/api/(.*)', verify_token, (ctx) => {
+  ctx.status = 204;
+});
+router.head('/api/(.*)', verify_token, (ctx) => {
+  ctx.status = 204;
+});
 
 // https://testnet.flowscan.org/
 

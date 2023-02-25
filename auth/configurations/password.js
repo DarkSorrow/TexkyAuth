@@ -3,6 +3,11 @@
  */
 import * as crypto from 'crypto';
 
+import constant from './constant.js';
+
+const hackathonKey = Buffer.from(constant.hackathon.key, 'base64url');
+const hackathonIV = Buffer.from(constant.hackathon.iv, 'base64url');
+
 class PasswordManager {
   constructor() {
     this.pwdAlgs = [
@@ -69,6 +74,40 @@ class PasswordManager {
           });
         });
       });
+    });
+  }
+
+  /**
+   * Convert the object to a json stringify and encrypt it
+   * @param {Object} object 
+   */
+  encryptHackathon(object) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cipher = crypto.createCipheriv("aes-256-cbc",hackathonKey,hackathonIV);
+        let encrypted = cipher.update(JSON.stringify(object));
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        resolve(encrypted);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * Take the string object decrypt and parse it
+   * @param {string} object 
+   */
+  decryptHackathon(object) {
+    return new Promise((resolve, reject) => {
+      try {
+        const decipher = crypto.createDecipheriv("aes-256-cbc",hackathonKey,hackathonIV);
+        let decrypted = decipher.update(object);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+        resolve(JSON.parse(decrypted));
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 }

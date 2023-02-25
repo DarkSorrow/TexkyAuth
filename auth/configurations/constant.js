@@ -94,6 +94,10 @@ const constant = {
       private: (process.env.FLOW_MAIN_PRIVATE) ? process.env.FLOW_MAIN_PRIVATE.trim() : '',
       address: (process.env.FLOW_MAIN_ADDRESS) ? process.env.FLOW_MAIN_ADDRESS.trim() : '',
     } 
+  },
+  hackathon: {
+    key: (process.env.HACKATHON_KEY) ? process.env.HACKATHON_KEY.trim() : 'psBvMzrnnYORehr6JMfTojeIrexEc4-Ct7PbHVCquQs',
+    iv: (process.env.HACKATHON_IV) ? process.env.HACKATHON_IV.trim() : 'oBSRO83MZNfqbUKKt6QUGQ',
   }
 };
 

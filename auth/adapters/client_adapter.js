@@ -66,13 +66,7 @@ class ClientAdapter {
       logger.trace('[ClientAdapter::upsert]', { id, client: payload });
       try {
         //add other object if they exist
-        const client_id = (typeof id === 'string') ? client.cassandraDriver.types.TimeUuid.fromString(id) : id;
-        const clientValues = await clientApplication.formatCassandraApplication(client_id, payload);
-        await cql.execute(
-          'INSERT INTO openid.application (client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-          clientValues,
-          { prepare: true },
-        );
+        clientApplication.upsertClient(id, payload)
       } catch (Err) {
         logger.error(err, '[ClientAdapter::upsert]');
         throw new Error('Could not insert the client');
@@ -84,17 +78,8 @@ class ClientAdapter {
       try {
         let client = proxyCacheClient[id];
         if (client === null) {
-          const application = await cql.execute(
-            'SELECT client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts FROM openid.application WHERE client_id = ?;',
-            [id],
-            { prepare: true },
-          );
-          if ((application.rowLength === 1) && (application.rows[0].suspended !== true)) {
-            client = await clientApplication.parseClients(application.rows[0]);
-            proxyCacheClient[id] = client;
-          } else {
-            proxyCacheClient[id] = null;
-          }
+          const client = clientApplication.getClient(id);
+          proxyCacheClient[id] = client;
         }
         if (client === -1) {
           logger.warn('[ClientAdapter::find] client not found or suspended', { clientId: id });

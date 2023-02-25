@@ -505,7 +505,7 @@ class Account {
       if (consent.rowLength === 1) {
         return ({
           consent: consent.rows[0].consent,
-          details: (consent.rows[0].detail_json) ? JSON.stringify(consent.rows[0].detail_json) : null,
+          details: (consent.rows[0].detail_json) ? JSON.parse(consent.rows[0].detail_json) : null,
         })
       }
       return (null);
@@ -701,59 +701,6 @@ class Account {
       return (null);
     }
   }
-  
-  /**
-   * @param use - can either be "id_token" or "userinfo", depending on
-   *   where the specific claims are intended to be put in.
-   * @param scope - the intended scope, while oidc-provider will mask
-   *   claims depending on the scope automatically you might want to skip
-   *   loading some claims from external resources etc. based on this detail
-   *   or not return them in id tokens but only userinfo and so on.
-   */
-  /*async claims(use, scope) { // eslint-disable-line no-unused-vars
-    if (this.profile) {
-      return {
-        sub: this.accountId, // it is essential to always return a sub claim
-        email: this.profile.email,
-        email_verified: this.profile.email_verified,
-        family_name: this.profile.family_name,
-        given_name: this.profile.given_name,
-        locale: this.profile.locale,
-        name: this.profile.name,
-      };
-    }
-
-    return {
-      sub: this.accountId, // it is essential to always return a sub claim
-
-      address: {
-        country: '000',
-        formatted: '000',
-        locality: '000',
-        postal_code: '000',
-        region: '000',
-        street_address: '000',
-      },
-      birthdate: '1987-10-16',
-      email: 'johndoe@example.com',
-      email_verified: false,
-      family_name: 'Doe',
-      gender: 'male',
-      given_name: 'John',
-      locale: 'en-US',
-      middle_name: 'Middle',
-      name: 'John Doe',
-      nickname: 'Johny',
-      phone_number: '+49 000 000000',
-      phone_number_verified: false,
-      picture: 'http://lorempixel.com/400/200/',
-      preferred_username: 'johnny',
-      profile: 'https://johnswebsite.com',
-      updated_at: 1454704946,
-      website: 'http://example.com',
-      zoneinfo: 'Europe/Berlin',
-    };
-  }*/
 
   static async findByFederated(provider, claims) {
     const id = `${provider}.${claims.sub}`;
@@ -818,6 +765,9 @@ class Account {
             }
           }
           const userClaims = {};
+          // GET the list of legal Entity the user has and allow him to create a new app
+          // account.subject_groups (subject,legal_id)
+          
           /*if (userAttr.length > 0) {
             const user = await cql.execute(
               'SELECT email,email_verified,phone,phone_verified,name,given_name,family_name,middle_name,nickname,preferred_username,profile,picture,website,gender,birthdate,birthday_type,zoneinfo,locale,updated_at,address FROM userdata.user_informations WHERE subject=?;',

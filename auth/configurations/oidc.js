@@ -39,7 +39,7 @@ const configuration = {
   }],
   extraParams: ['tmpl', 'lng'],
   extraClientMetadata: {
-    properties: ['client_application_type', 'cors_origins'],
+    properties: ['client_application_type', 'cors_origins', 'consent_flow', 'flow_custody', 'flow_account_creation', 'flow_contracts', 'notif_params_json'],
     validator(ctx, key, value, metadata) {
       if (key === 'cors_origins') {
         // set default (no CORS)
@@ -67,16 +67,16 @@ const configuration = {
     devInteractions: { enabled: false }, // defaults to true
     backchannelLogout: { enabled: true }, // defaults to false
     deviceFlow: { enabled: true }, // defaults to false
-    jwtIntrospection: { enabled: true, ack: 'draft-09' }, // defaults to false
-    jwtResponseModes: { enabled: true }, // defaults to false
+    //jwtIntrospection: { enabled: true, ack: 'draft-09' }, // defaults to false
+    //jwtResponseModes: { enabled: true }, // defaults to false
     revocation: { enabled: true }, // defaults to false
     claimsParameter: { enabled: false }, // defaults to false
     encryption: { enabled: true }, // defaults to false
-    introspection: { enabled: true }, // defaults to false
-    /*
+    // introspection: { enabled: true }, // defaults to false
+    // disable and use opaque token later or FAPI
     resourceIndicators: {
       // eslint-disable-next-line no-unused-vars
-      defaultResource: async (ctx, client, oneOf) => 'https://texky.com',
+      defaultResource: async (ctx, client, oneOf) => 'https://app.texky.com',
       useGrantedResource: async () => true,
       getResourceServerInfo: (ctx, resourceIndicator, client) => ({
         scope: '',
@@ -85,7 +85,6 @@ const configuration = {
         accessTokenFormat: 'jwt',
       }),
     },
-    */
     rpInitiatedLogout: {
       enable: true, // https://github.com/panva/node-oidc-provider/blob/v6.29.5/docs/README.md#featuresrpinitiatedlogout
       async postLogoutSuccessSource(ctx) {
@@ -95,6 +94,30 @@ const configuration = {
         logoutMiddleware(ctx, form);
       },
     },
+  },
+  async extraTokenClaims(ctx, token) {
+    const legalList = [];
+    ctx.log.error({ token, accountId: token.accountId }, '[extraTokenClaims]');
+    try {
+      const subjectGroups = await ctx.cassandra.cql.execute(
+        'SELECT subject,legal_id FROM account.subject_groups WHERE subject=?;',
+        [ctx.cassandra.driver.types.TimeUuid.fromString(token.accountId)],
+        { prepare: true },
+      );
+      ctx.log.error({ account: token.acccountId, subjectGroups }, '[extraTokenClaims]');
+      if (subjectGroups.rowLength > 0) {
+        for (let i = 0; i < subjectGroups.rows.length; i++) {
+          if (subjectGroups.rows[0].legal_id) {
+            legalList.push(subjectGroups.rows[0].legal_id.toString());
+          }
+        }
+      }  
+    } catch (err) {
+      ctx.log.error({ err }, '[extraTokenClaims]');
+    }
+    return {
+      'urn:idp:legals': legalList,
+    };
   },
   jwks: {
     keys: [

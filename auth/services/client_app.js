@@ -5,6 +5,9 @@
  * Class that helps manage client applications
  * This class is used in the test as well so we can share the code for test purposes
  */
+import { nanoid } from 'nanoid';
+import { cql, driver } from './cassandra.js';
+import { logger } from './logger.js';
 
 export const AccountCustodyEnum = {
   USER_CUSTODY: 0, // the user own the account
@@ -19,72 +22,148 @@ export const AccountChoiceCustodyEnum = {
   HYBRID_ONLY: 3, // both app and user must own the account
 }
 
+/**
+ * Clean the properties of the client attribute for an update or an insert
+ * @param {TimeUUID} id - client id
+ * @param {*} payload - properties that were passed
+ * @param {Boolean} allow - allow the insertion of client_application_type = 0 which are consent free, DO NOT allow this on http servers, internal use only
+ * @return client object parsed
+ */
+const formatCassandraApplication = (id, payload, allow = false) => {
+  let client_application_type = 2;
+  if (payload.client_application_type !== undefined) {
+    if (allow === true) {
+      client_application_type = payload.client_application_type;
+    } else {
+      client_application_type = (payload.client_application_type >= 2) ? payload.client_application_type : 2;
+    }
+  }
+  const legal_id = (payload.legal_id) ? payload.legal_id : null;
+  if (legal_id === null) {
+    throw new Error('No legal entity for the application')
+  }
+  return ([
+    id,//client_id 0
+    payload.client_secret,//client_secret 1
+    false,//suspended 2
+    (payload.software_id) ?  payload.software_id : '',//software_id 3
+    (['web', 'native'].includes(payload.application_type)) ? payload.application_type : 'web',//application_type 4
+    (payload.logo_uri) ? payload.logo_uri : '',//logo_uri 5
+    (['public', 'pairwise'].includes(payload.subject_type)) ? payload.subject_type : 'pairwise',//subject_type 6
+    (payload.client_name) ? payload.client_name : '',//client_name 7
+    (payload.client_uri) ? payload.client_uri : '',//client_uri 8
+    (payload.policy_uri) ? payload.policy_uri : '',//policy_uri 9
+    (payload.tos_uri) ? payload.tos_uri : '',//tos_uri 10
+    new Date(),//updated_at 11
+    (payload.contacts) ? payload.contacts : [],//contacts 12
+    client_application_type,//client_application_type 13
+    (payload.sector_identifier_uri) ? payload.sector_identifier_uri : '',//sector_identifier_uri 14
+    (payload.response_types) ? payload.response_types : ['code'],//response_types 15
+    (payload.redirect_uris) ? payload.redirect_uris : [],//redirect_uris 16
+    (payload.grant_types) ? payload.grant_types : [],//grant_types 17
+    (payload.default_acr) ? payload.default_acr : ['urn:mace:incommon:iap:bronze'],//default_acr 18
+    (payload.post_logout_redirect_uris) ? payload.post_logout_redirect_uris : [],//post_logout_redirect_uris 19
+    (payload.notif_params_json) ? payload.notif_params_json : '',//notif_params_json 20
+    (payload.cors_allowed) ? payload.cors_allowed : [], // 21
+    (payload.consent_flow) ? payload.consent_flow : '', // 22
+    (payload.flow_custody) ? payload.flow_custody : '',// 23
+    (payload.flow_account_creation) ? payload.flow_account_creation : '', // 24
+    (payload.flow_contracts) ? payload.flow_contracts : [], // 25
+    legal_id,//legal entity 26
+  ]);
+}
+
+/**
+ * Parse the client object found https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
+ * Note: client_name, tos_uri, policy_uri, logo_uri, and client_uri might have multiple locale-specific
+ * @param {*} client
+ * @return parsed client value in order to keep the client information correct
+*/
+const parseClients = (client) => {
+  Object.keys(client).forEach((keys) => {
+    if (client[keys] === '' || client[keys] === null) {
+      delete client[keys];
+    }
+  });
+  client.client_id = client.client_id.toString();
+  if (client.application_type === 'native') {
+    client.token_endpoint_auth_method = 'none';
+  }
+  return (client);
+}
 class ClientApplication {
   /**
-     * Clean the properties of the client attribute for an update or an insert
-     * @param {TimeUUID} id - client id
-     * @param {*} payload - properties that were passed
-     * @param {Boolean} allow - allow the insertion of client_application_type = 0 which are consent free, DO NOT allow this on http servers, internal use only
-     * @return client object parsed
-     */
-  async formatCassandraApplication(id, payload, allow = false) {
-    // begin verification? maybe check how the update would work or the insert
-    try {
-      //Client type application can only be 0 or 1 if it's inserted with scripts, but the application should never be allowed to insert them
-      let client_application_type = 2;
-      if (payload.client_application_type !== undefined) {
-        if (allow === true) {
-          client_application_type = payload.client_application_type;
-        } else {
-          client_application_type = (payload.client_application_type >= 2) ? payload.client_application_type : 2;
-        }
-      }
-      return ([
-        id,//client_id
-        payload.client_secret,//client_secret
-        false,//suspended
-        (payload.software_id) ?  payload.software_id : '',//software_id
-        (['web', 'native'].includes(payload.application_type)) ? payload.application_type : 'web',//application_type
-        (payload.logo_uri) ? payload.logo_uri : '',//logo_uri
-        (['public', 'pairwise'].includes(payload.subject_type)) ? payload.subject_type : 'pairwise',//subject_type
-        (payload.client_name) ? payload.client_name : '',//client_name
-        (payload.client_uri) ? payload.client_uri : '',//client_uri
-        (payload.policy_uri) ? payload.policy_uri : '',//policy_uri
-        (payload.tos_uri) ? payload.tos_uri : '',//tos_uri
-        new Date(),//updated_at
-        (payload.contacts) ? payload.contacts : [],//contacts
-        client_application_type,//client_application_type
-        (payload.sector_identifier_uri) ? payload.sector_identifier_uri : '',//sector_identifier_uri
-        (payload.response_types) ? payload.response_types : ['code'],//response_types
-        (payload.redirect_uris) ? payload.redirect_uris : [],//redirect_uris
-        (payload.grant_types) ? payload.grant_types : [],//grant_types
-        (payload.default_acr) ? payload.default_acr : ['urn:mace:incommon:iap:bronze'],//default_acr
-        (payload.post_logout_redirect_uris) ? payload.post_logout_redirect_uris : [],//post_logout_redirect_uris
-        (payload.notif_params_json) ? payload.notif_params_json : '',//notif_params_json
-      ]);
-    } catch (err) {
-      throw err;
-    }
+   * Clean the properties of the client attribute for an update or an insert
+   * @param {TimeUUID} id - client id
+   * @param {*} payload - properties that were passed
+   * @param {Boolean} allow - allow the insertion of client_application_type = 0 which are consent free, DO NOT allow this on http servers, internal use only
+   * @return client object parsed
+   */
+  async upsertClient(id, payload, allow = false) {
+    const client_id = (typeof id === 'string') ? driver.types.TimeUuid.fromString(id) : id;
+    payload.legal_id = (typeof payload.legal_id === 'string') ? driver.types.TimeUuid.fromString(id) : id;
+    const clientValues = formatCassandraApplication(client_id, payload);
+    const legalApplication = [
+      clientValues[26],
+      clientValues[0],
+      clientValues[2],
+      clientValues[4],
+      clientValues[5],
+      clientValues[7],
+      clientValues[13],
+      clientValues[22],
+      clientValues[23],
+      clientValues[24],
+      clientValues[11]
+    ]
+    const res = await Promise.all([
+      cql.execute(
+        'INSERT INTO account.application (client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts,legal_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        clientValues,
+        { prepare: true },
+      ),
+      cql.execute(
+        'INSERT INTO account.legal_application (legal_id,client_id,suspended,application_type,logo_uri,client_name,client_application_type,consent_flow,flow_custody,flow_account_creation,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+        legalApplication,
+        { prepare: true },
+      )
+    ]);
+    return (res);
   }
 
   /**
-   * Parse the client object found https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
-   * Note: client_name, tos_uri, policy_uri, logo_uri, and client_uri might have multiple locale-specific
-   * @param {*} client
-   * @return parsed client value in order to keep the client information correct
-  */
-  async parseClients(client) {
-    Object.keys(client).forEach((keys) => {
-      if (client[keys] === '' || client[keys] === null) {
-        delete client[keys];
-      }
-    });
-    client.client_id = client.client_id.toString();
-    if (client.application_type === 'native') {
-      client.token_endpoint_auth_method = 'none';
+   * Return the legal_id of the current client
+   * @param {*} id 
+   * @returns 
+   */
+  async checkClient(id) {
+    const application = await cql.execute(
+      'SELECT client_id,legal_id FROM account.application WHERE client_id = ?;',
+      [id],
+      { prepare: true },
+    );
+    if (application.rowLength === 1) {
+      return application.rows[0].legal_id;
     }
-    delete client.salt;
-    return (client);
+    return null;
+  }
+  // test@flowpenid.com
+  // testtest1234
+  async getClient(id) {
+    const application = await cql.execute(
+      'SELECT client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts,legal_id FROM account.application WHERE client_id = ?;',
+      [id],
+      { prepare: true },
+    );
+    if ((application.rowLength === 1) && (application.rows[0].suspended !== true)) {
+      client = parseClients(application.rows[0]);
+      return client;
+    }
+    return null;
+  }
+
+  async getClients(pagination) {
+
   }
 }
 

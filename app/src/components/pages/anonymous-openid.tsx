@@ -97,7 +97,8 @@ export const CallbackOIDC = () => {
         });
         const oidcPayload: OIDCPayload = await respFetch.json();
 
-        respFetch = await fetch(`${OIDC_URL}/me`, {
+        // /introspect
+        respFetch = await fetch(`${OIDC_URL}/api/applications`, {
           method: "GET",
           signal: abortController.signal,
           headers: {
@@ -107,7 +108,6 @@ export const CallbackOIDC = () => {
         });
         const userInfo: any = await respFetch.json();
         console.log('userinfo:', userInfo);
-
         await signIn(
           oidcPayload.access_token, oidcPayload.id_token,
           null, new Date(new Date().getTime() + oidcPayload.expires_in),
