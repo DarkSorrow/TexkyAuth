@@ -97,14 +97,12 @@ const configuration = {
   },
   async extraTokenClaims(ctx, token) {
     const legalList = [];
-    ctx.log.error({ token, accountId: token.accountId }, '[extraTokenClaims]');
     try {
       const subjectGroups = await ctx.cassandra.cql.execute(
         'SELECT subject,legal_id FROM account.subject_groups WHERE subject=?;',
         [ctx.cassandra.driver.types.TimeUuid.fromString(token.accountId)],
         { prepare: true },
       );
-      ctx.log.error({ account: token.acccountId, subjectGroups }, '[extraTokenClaims]');
       if (subjectGroups.rowLength > 0) {
         for (let i = 0; i < subjectGroups.rows.length; i++) {
           if (subjectGroups.rows[0].legal_id) {

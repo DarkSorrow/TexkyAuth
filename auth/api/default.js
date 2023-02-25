@@ -17,10 +17,10 @@ export const verify_token = async (ctx, next) => {
     try {
       const jwt = await jwtVerify(jwtToken, JWKS);
       if (jwt) {
-        ctx.state.subject = jwt.payload.sub;
+        ctx.state.subject = ctx.cassandra.driver.types.TimeUuid.fromString(jwt.payload.sub);
         ctx.state.clientId = jwt.payload.client_id;
         // Hackathon purpose
-        ctx.state.legals = jwt.payload['urn:idp:legals'][0];
+        ctx.state.legal = ctx.cassandra.driver.types.TimeUuid.fromString(jwt.payload['urn:idp:legals'][0]);
         return next();
       }
     } catch (err) {

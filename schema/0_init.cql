@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS account.application (
     flow_custody tinyint,
     flow_account_creation text,
     flow_contracts map<text, text>,
+    legal_id timeuuid,
     updated_at timestamp,
     PRIMARY KEY (client_id)
 );
@@ -122,6 +123,21 @@ CREATE TABLE IF NOT EXISTS account.legal_entity (
     extra map<text, text>,
     paid_options map<text, text>,
     shards_history set<text>
+);
+
+CREATE TABLE IF NOT EXISTS account.legal_application (
+    legal_id timeuuid,
+    client_id text,
+    suspended boolean,
+    application_type text,
+    logo_uri text,
+    client_name text,
+    client_application_type int,
+    consent_flow tinyint,
+    flow_custody tinyint,
+    flow_account_creation text,
+    updated_at timestamp,
+    PRIMARY KEY (legal_id, client_id)
 );
 
 CREATE TABLE IF NOT EXISTS account.legal_groups (
