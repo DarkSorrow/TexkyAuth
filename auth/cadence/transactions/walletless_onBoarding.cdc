@@ -1,4 +1,4 @@
-import ChildAccount from 0x01
+import ChildAccount from "../contracts/ChildAccount.cdc"
 
 transaction(pubKey: String, childAccountName: String, childAccountMailAdress: String, childAccountEMail: String) {
     prepare(signer: AuthAccount) {

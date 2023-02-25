@@ -3,6 +3,7 @@
     pub let ChildAccountTagPublicPath: PublicPath
     pub let ChildAccountTagPrivatePath: PrivatePath
     pub let ChildAccountCreatorStoragePath: StoragePath
+    pub let ChildAccountCreatorPublicPath: PublicPath
 
     pub struct ChildAccountInfo {
         pub let name: String
@@ -83,6 +84,43 @@
             return newAccount
         }
     }
+
+    pub resource interface ChildAccountManagerViewer {
+        pub fun getChildAccountAddresses(): [Address]
+        // TODO: Metadata views collection?
+        pub fun getChildAccountInfo(address: Address): ChildAccountInfo?
+    }
+
+    pub fun createChildAccountManager(): @ChildAccountManager {
+        return <-create ChildAccountManager()
+    }
+
+    pub resource ChildAccountController {
+    }
+
+    pub resource ChildAccountManager {
+        pub let childAccounts: @{Address: ChildAccountController}
+
+        init() {
+            self.childAccounts <- {}
+        }
+
+        pub fun getChildAccountAddresses(): [Address] {
+            return self.childAccounts.keys
+        }
+
+        destroy () {
+            pre {
+                self.childAccounts.length == 0:
+                    "Attempting to destroy ChildAccountManager with remaining ChildAccountControllers!"
+            }
+            destroy self.childAccounts
+        }
+    }
+
+    pub fun createChildAccountCreator(): @ChildAccountCreator {
+        return <-create ChildAccountCreator()
+    }
     
     init() {
         self.ChildAccountTagStoragePath = /storage/ChildAccountTag
@@ -90,6 +128,7 @@
         self.ChildAccountTagPrivatePath = /private/ChildAccountTag
         
         self.ChildAccountCreatorStoragePath = /storage/ChildAccountCreator
+        self.ChildAccountCreatorPublicPath = /public/ChildAccountCreator
     }
  }
  
