@@ -6,7 +6,7 @@ import { configure } from "lasso";
 /*import { promisify } from 'util';
 // revisit after to create rules with clients origins
 import helmet from 'helmet';*/
-
+//pm2 start app.js --node-args="-r esm"
 import * as cassandra from './services/cassandra.js';
 import { redisClient } from './services/redis.js';
 import { flowClient } from './services/flow.js';

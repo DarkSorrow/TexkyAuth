@@ -108,6 +108,9 @@ export default (provider) => {
         const missingOIDCClaims = new Set(prompt.details.missingOIDCClaims);
         ['sub', 'sid', 'auth_time', 'acr', 'amr', 'iss'].forEach(Set.prototype.delete.bind(missingOIDCClaims));
         const missingResourceScopes = prompt.details.missingResourceScopes;
+        /*
+          FIND INFORMATION ABOUT HOW WE WILL CREATE THE FLOW ACCOUNT AND PRPOSE THE CREATION
+        */
         ctx.body = consentTmpl.stream({
           html: ctx.state.html,
           title: ctx.state.t('loginFlow.title'),

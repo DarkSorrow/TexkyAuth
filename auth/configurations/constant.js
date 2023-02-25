@@ -26,8 +26,8 @@ const constant = {
   port: process.env.PORT ? parseInt(process.env.PORT) : 8080,
   social: {
     facebook: {
-      id: (process.env.FACEBOOK_ID) ? process.env.FACEBOOK_ID.trim() : '',
-      secret: (process.env.FACEBOOK_SECRET) ? process.env.FACEBOOK_SECRET.trim() : '',
+      id: (process.env.FACEBOOK_ID) ? process.env.FACEBOOK_ID.trim() : 'fake',
+      secret: (process.env.FACEBOOK_SECRET) ? process.env.FACEBOOK_SECRET.trim() : 'fake',
       config: (ctx) => {
         return ({
           scope: [
@@ -39,8 +39,8 @@ const constant = {
       },
     },
     google: {
-      id: (process.env.GOOGLE_ID) ? process.env.GOOGLE_ID.trim() : '',
-      secret: (process.env.GOOGLE_SECRET) ? process.env.GOOGLE_SECRET.trim() : '',
+      id: (process.env.GOOGLE_ID) ? process.env.GOOGLE_ID.trim() : 'fake',
+      secret: (process.env.GOOGLE_SECRET) ? process.env.GOOGLE_SECRET.trim() : 'fake',
       config: (ctx) => ({
         scope: [
           'openid',
