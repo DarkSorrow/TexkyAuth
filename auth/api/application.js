@@ -6,10 +6,10 @@ import cors from '@koa/cors';
 const router = new Router();
 router.use(cors())
 
-router.options('/api/(.*)', verify_token, (ctx) => {
+router.options('/api/(.*)', (ctx) => {
   ctx.status = 204;
 });
-router.head('/api/(.*)', verify_token, (ctx) => {
+router.head('/api/(.*)', (ctx) => {
   ctx.status = 204;
 });
 

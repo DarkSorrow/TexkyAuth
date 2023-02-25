@@ -1058,10 +1058,10 @@
     jsesc "^3.0.2"
     relative-import-path "^1.0.0"
 
-"@marko/compiler@^5.23.5":
-  version "5.23.5"
-  resolved "https://registry.yarnpkg.com/@marko/compiler/-/compiler-5.23.5.tgz#431af9ee6fed69b24749f2de0d645ad915f5dffc"
-  integrity sha512-8PdN1l+WjberFCleUbIHPoGO5pcCOMzwF8pFFA3OaMapLV2jKQ3leOuC6z/eBjbkhPZ3058RgaTZgqUayDz/SQ==
+"@marko/compiler@^5.23.6":
+  version "5.23.6"
+  resolved "https://registry.yarnpkg.com/@marko/compiler/-/compiler-5.23.6.tgz#d19099af823c0495cd4830309601cf03507de777"
+  integrity sha512-YIpCCNelp3W0fuzgExCpt1XI99jMcVIxylrDa5HmKWXrtYWNvPHcLteQxsWhl5/3+FsYXNIH2yHDTFOUM74TiA==
   dependencies:
     "@babel/code-frame" "^7.16.0"
     "@babel/core" "^7.16.0"
@@ -1087,10 +1087,10 @@
     strip-ansi "^6.0.0"
     strip-json-comments "^3.1.1"
 
-"@marko/translator-default@^5.22.5":
-  version "5.22.5"
-  resolved "https://registry.yarnpkg.com/@marko/translator-default/-/translator-default-5.22.5.tgz#b43f10f4a9bb7497a39fb7f2984d6b6910243c29"
-  integrity sha512-05F1aDzPys8qGjzogWrSrV5CQRvSwopvM2k4fTgp9YTCSJWDYNmV0X0bA5XTYrWQxqZ2vyoe9LtnW/3UbSMytQ==
+"@marko/translator-default@^5.22.6":
+  version "5.22.6"
+  resolved "https://registry.yarnpkg.com/@marko/translator-default/-/translator-default-5.22.6.tgz#b7e2cda34a0f609607453d4213ea0fcebe388613"
+  integrity sha512-8Mc+Vg3Ct9WwEYOQrxVqVdIMCLN37tyyi5cClnrswWy78v0s2L1sYVHq6N//aOFvTuOO0pKQ7LLkQv93hRknKA==
   dependencies:
     "@babel/runtime" "^7.16.0"
     "@marko/babel-utils" "^5.21.4"
@@ -1404,9 +1404,9 @@
   integrity sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==
 
 "@types/node@*", "@types/node@>=8":
-  version "18.14.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.14.0.tgz#94c47b9217bbac49d4a67a967fdcdeed89ebb7d0"
-  integrity sha512-5EWrvLmglK+imbCJY0+INViFWUHg1AHel1sq4ZVSfdcNqGy9Edv3UB9IIzzg+xPaUcAgZYcfVs2fBcwDeZzU0A==
+  version "18.14.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.14.1.tgz#90dad8476f1e42797c49d6f8b69aaf9f876fc69f"
+  integrity sha512-QH+37Qds3E0eDlReeboBxfHbX9omAcBCXEzswCu6jySP642jiM3cYSIkU/REqwhCUqXdonHFuBfJDiAJxMNhaQ==
 
 "@types/qs@*":
   version "6.9.7"
@@ -1419,9 +1419,9 @@
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
 "@types/serve-static@*":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.15.0.tgz#c7930ff61afb334e121a9da780aac0d9b8f34155"
-  integrity sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.15.1.tgz#86b1753f0be4f9a1bee68d459fcda5be4ea52b5d"
+  integrity sha512-NUo5XNiAdULrJENtJXZZ3fHtfMolzZwczzBbnAeBbqBwG+LaG6YaJtuwzwGSQZ2wsCrxjEhNNjAkKigy3n8teQ==
   dependencies:
     "@types/mime" "*"
     "@types/node" "*"
@@ -2092,9 +2092,9 @@ cacheable-lookup@^7.0.0:
   integrity sha512-+qJyx4xiKra8mZrcwhjMRMUhD5NR1R8esPkzIYxX96JiecFoxAXFuz/GpR3+ev4PE1WamHip78wV0vcmPQtp8w==
 
 cacheable-request@^10.2.1:
-  version "10.2.7"
-  resolved "https://registry.yarnpkg.com/cacheable-request/-/cacheable-request-10.2.7.tgz#8bb8da66338f321b3cbbc34a71ac231178171bcc"
-  integrity sha512-I4SA6mKgDxcxVbSt/UmIkb9Ny8qSkg6ReBHtAAXnZHk7KOSx5g3DTiAOaYzcHCs6oOdHn+bip9T48E6tMvK9hw==
+  version "10.2.8"
+  resolved "https://registry.yarnpkg.com/cacheable-request/-/cacheable-request-10.2.8.tgz#899ae6c0c8c7127f263b2005ecaac07c95124079"
+  integrity sha512-IDVO5MJ4LItE6HKFQTqT2ocAQsisOoCTUDu1ddCmnhyiwFQjXNPp4081Xj23N4tO+AFEFNzGuNEf/c8Gwwt15A==
   dependencies:
     "@types/http-cache-semantics" "^4.0.1"
     get-stream "^6.0.1"
@@ -2699,9 +2699,9 @@ ejs@^3.1.8:
     jake "^10.8.5"
 
 electron-to-chromium@^1.4.284:
-  version "1.4.308"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.308.tgz#39e7047579867c59973eec5168d8bf440780cb7a"
-  integrity sha512-qyTx2aDFjEni4UnRWEME9ubd2Xc9c0zerTUl/ZinvD4QPsF0S7kJTV/Es/lPCTkNX6smyYar+z/n8Cl6pFr8yQ==
+  version "1.4.311"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.311.tgz#953bc9a4767f5ce8ec125f9a1ad8e00e8f67e479"
+  integrity sha512-RoDlZufvrtr2Nx3Yx5MB8jX3aHIxm8nRWPJm3yVvyHmyKaRvn90RjzB6hNnt0AkhS3IInJdyRfQb4mWhPvUjVw==
 
 elliptic@^6.5.3, elliptic@^6.5.4:
   version "6.5.4"
@@ -4001,11 +4001,6 @@ koa-convert@^2.0.0:
     co "^4.6.0"
     koa-compose "^4.1.0"
 
-koa-cors@^0.0.16:
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/koa-cors/-/koa-cors-0.0.16.tgz#98107993a7909e34c042986c5ec6156d77f3432e"
-  integrity sha512-s15knPxe3AJBi2I/ZMPL0pSqU+PLYLO6k5tI0AqClkzavowvocPlSdFUwaHNqtjHMhsGmiq2tiX/25iILJx9YA==
-
 koa-mount@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/koa-mount/-/koa-mount-4.0.0.tgz#e0265e58198e1a14ef889514c607254ff386329c"
@@ -4300,12 +4295,12 @@ map-visit@^1.0.0:
     object-visit "^1.0.0"
 
 marko@^5.22.4:
-  version "5.22.6"
-  resolved "https://registry.yarnpkg.com/marko/-/marko-5.22.6.tgz#8d34c095fec5b10e67540499144d1b206d14982c"
-  integrity sha512-suppd2hM5OAkuSi0eKENBbvuU7tylAO4JbTjG4UlXlCtMePLQO2PzRW1yO6nigWBt+xYu8kq6HjaKht0OsvdVA==
+  version "5.22.8"
+  resolved "https://registry.yarnpkg.com/marko/-/marko-5.22.8.tgz#17aa88f0c45b76eb16c08b77312949d4253f2790"
+  integrity sha512-ScreAyrOvfpez5Hxr9U3IC6SL4KnGbpH/TW6Inzwo9fyt0go+Hz5aSQtZBWF8KlKLS4WYlLzUa/v2SawZDduwQ==
   dependencies:
-    "@marko/compiler" "^5.23.5"
-    "@marko/translator-default" "^5.22.5"
+    "@marko/compiler" "^5.23.6"
+    "@marko/translator-default" "^5.22.6"
     app-module-path "^2.2.0"
     argly "^1.2.0"
     browser-refresh-client "1.1.4"
@@ -4906,9 +4901,9 @@ pino-abstract-transport@^1.0.0, pino-abstract-transport@v1.0.0:
     split2 "^4.0.0"
 
 pino-pretty@^9.2.0:
-  version "9.3.0"
-  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-9.3.0.tgz#ce26ba479451934d05dfad68a9b30511a5169d33"
-  integrity sha512-T3FIzVc2sQfDY6FSjhvAEOeA1sby0YKI4he4VsI+d8q3MyYnfsPT+7OI3W/99v0v3TfJN/nMJradEvJWjbjRaQ==
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-9.4.0.tgz#fc4026e83c87272cbdfb7afed121770e6000940c"
+  integrity sha512-NIudkNLxnl7MGj1XkvsqVyRgo6meFP82ECXF2PlOI+9ghmbGuBUUqKJ7IZPIxpJw4vhhSva0IuiDSAuGh6TV9g==
   dependencies:
     colorette "^2.0.7"
     dateformat "^4.6.3"
@@ -5861,9 +5856,9 @@ syntax-error@^1.1.1:
     acorn-node "^1.2.0"
 
 terser@^5.15.0:
-  version "5.16.4"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.16.4.tgz#51284b440b93242291a98f2a9903c024cfb70e6e"
-  integrity sha512-5yEGuZ3DZradbogeYQ1NaGz7rXVBDWujWlx1PT8efXO6Txn+eWbfKqB2bTDVmFXmePFkoLU6XI8UektMIEA0ug==
+  version "5.16.5"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-5.16.5.tgz#1c285ca0655f467f92af1bbab46ab72d1cb08e5a"
+  integrity sha512-qcwfg4+RZa3YvlFh0qjifnzBHjKGNbtDo9yivMqMFDy9Q6FSaQWSB/j1xKhsoUFJIqDOM3TsN6D5xbrMrFcHbg==
   dependencies:
     "@jridgewell/source-map" "^0.3.2"
     acorn "^8.5.0"
