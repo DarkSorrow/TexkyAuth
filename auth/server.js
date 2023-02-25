@@ -22,7 +22,6 @@ import apiApplicationRouter from './api/application.js';
 import apiFlowRouter from './api/flow.js';
 import errors from './services/error.js';
 
-console.log(constant);
 //Configure lasso bundle for marko templates
 configure({
   plugins: [

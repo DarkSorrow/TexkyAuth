@@ -19,7 +19,7 @@ const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_LIST);
 i18next
   .use(I18NexFsBackend)
   .init({
-  debug: !constant.isProduction,
+  debug: false,//!constant.isProduction,
   initImmediate: false,
   fallbackLng: 'en',
   supportedLngs: SUPPORTED_LANGUAGES,

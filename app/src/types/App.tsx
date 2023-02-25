@@ -41,6 +41,7 @@ export interface NVRequestOption {
   pageID?: string | null;
   lastID?: string;
   shards?: string;
+  error?: string;
 }
 
 export interface NVRequestItems<T> {

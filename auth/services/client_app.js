@@ -5,7 +5,6 @@
  * Class that helps manage client applications
  * This class is used in the test as well so we can share the code for test purposes
  */
-import { nanoid } from 'nanoid';
 import { cql, driver } from './cassandra.js';
 import { logger } from './logger.js';
 
@@ -46,30 +45,29 @@ const formatCassandraApplication = (id, payload, allow = false) => {
     id,//client_id 0
     payload.client_secret,//client_secret 1
     false,//suspended 2
-    (payload.software_id) ?  payload.software_id : '',//software_id 3
-    (['web', 'native'].includes(payload.application_type)) ? payload.application_type : 'web',//application_type 4
-    (payload.logo_uri) ? payload.logo_uri : '',//logo_uri 5
-    (['public', 'pairwise'].includes(payload.subject_type)) ? payload.subject_type : 'pairwise',//subject_type 6
-    (payload.client_name) ? payload.client_name : '',//client_name 7
-    (payload.client_uri) ? payload.client_uri : '',//client_uri 8
-    (payload.policy_uri) ? payload.policy_uri : '',//policy_uri 9
-    (payload.tos_uri) ? payload.tos_uri : '',//tos_uri 10
-    new Date(),//updated_at 11
-    (payload.contacts) ? payload.contacts : [],//contacts 12
-    client_application_type,//client_application_type 13
-    (payload.sector_identifier_uri) ? payload.sector_identifier_uri : '',//sector_identifier_uri 14
-    (payload.response_types) ? payload.response_types : ['code'],//response_types 15
-    (payload.redirect_uris) ? payload.redirect_uris : [],//redirect_uris 16
-    (payload.grant_types) ? payload.grant_types : [],//grant_types 17
-    (payload.default_acr) ? payload.default_acr : ['urn:mace:incommon:iap:bronze'],//default_acr 18
-    (payload.post_logout_redirect_uris) ? payload.post_logout_redirect_uris : [],//post_logout_redirect_uris 19
-    (payload.notif_params_json) ? payload.notif_params_json : '',//notif_params_json 20
-    (payload.cors_allowed) ? payload.cors_allowed : [], // 21
-    (payload.consent_flow) ? payload.consent_flow : '', // 22
-    (payload.flow_custody) ? payload.flow_custody : '',// 23
-    (payload.flow_account_creation) ? payload.flow_account_creation : '', // 24
-    (payload.flow_contracts) ? payload.flow_contracts : [], // 25
-    legal_id,//legal entity 26
+    (['web', 'native'].includes(payload.application_type)) ? payload.application_type : 'web',//application_type 3
+    (payload.logo_uri) ? payload.logo_uri : '',//logo_uri 4
+    (['public', 'pairwise'].includes(payload.subject_type)) ? payload.subject_type : 'pairwise',//subject_type 5
+    (payload.client_name) ? payload.client_name : '',//client_name 6
+    (payload.client_uri) ? payload.client_uri : '',//client_uri 7
+    (payload.policy_uri) ? payload.policy_uri : '',//policy_uri 8
+    (payload.tos_uri) ? payload.tos_uri : '',//tos_uri 9
+    new Date(),//updated_at 10
+    (payload.contacts) ? payload.contacts : [],//contacts 11
+    client_application_type,//client_application_type 12
+    (payload.sector_identifier_uri) ? payload.sector_identifier_uri : '',//sector_identifier_uri 13
+    (payload.response_types) ? payload.response_types : ['code'],//response_types 14
+    (payload.redirect_uris) ? payload.redirect_uris : [],//redirect_uris 15
+    (payload.grant_types) ? payload.grant_types : [],//grant_types 16
+    (payload.default_acr) ? payload.default_acr : ['urn:mace:incommon:iap:bronze'],//default_acr 17
+    (payload.post_logout_redirect_uris) ? payload.post_logout_redirect_uris : [],//post_logout_redirect_uris 18
+    (payload.notif_params_json) ? payload.notif_params_json : '',//notif_params_json 19
+    (payload.cors_allowed) ? payload.cors_allowed : [], // 20
+    (payload.consent_flow) ? payload.consent_flow : '', // 21
+    (payload.flow_custody) ? payload.flow_custody : '',// 22
+    (payload.flow_account_creation) ? payload.flow_account_creation : '', // 23
+    (payload.flow_contracts) ? payload.flow_contracts : [], // 24
+    legal_id,//legal entity 25
   ]);
 }
 
@@ -100,25 +98,25 @@ class ClientApplication {
    * @return client object parsed
    */
   async upsertClient(id, payload, allow = false) {
-    const client_id = (typeof id === 'string') ? driver.types.TimeUuid.fromString(id) : id;
-    payload.legal_id = (typeof payload.legal_id === 'string') ? driver.types.TimeUuid.fromString(id) : id;
+    const client_id = id;
+    payload.legal_id = (typeof payload.legal_id === 'string') ? driver.types.TimeUuid.fromString(payload.legal_id) : payload.legal_id;
     const clientValues = formatCassandraApplication(client_id, payload);
     const legalApplication = [
-      clientValues[26],
+      clientValues[25],
       clientValues[0],
       clientValues[2],
+      clientValues[3],
       clientValues[4],
-      clientValues[5],
-      clientValues[7],
-      clientValues[13],
+      clientValues[6],
+      clientValues[12],
+      clientValues[21],
       clientValues[22],
       clientValues[23],
-      clientValues[24],
-      clientValues[11]
+      clientValues[10]
     ]
     const res = await Promise.all([
       cql.execute(
-        'INSERT INTO account.application (client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts,legal_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO account.application (client_id,client_secret,suspended,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts,legal_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         clientValues,
         { prepare: true },
       ),
@@ -159,6 +157,13 @@ class ClientApplication {
       client = parseClients(application.rows[0]);
       return client;
     }
+    return null;
+  }
+  async deleteClient(id) {
+    await cql.execute(
+      'DELETE FROM account.application WHERE client_id = ?;',
+      [id], { prepare: true },
+    );
     return null;
   }
 
