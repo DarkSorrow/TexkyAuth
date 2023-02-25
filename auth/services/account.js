@@ -525,13 +525,6 @@ class Account {
    * @param {Object} appConsent - object that will be updated
   */
   static async CreateOrUpdateConsent(ctx, details, appConsent) {
-    ctx.log.error({
-      details,
-      appConsent,
-    }, '[CreateOrUpdateConsent]');
-    if (details.insertConsent !== true) {
-      return (true);
-    }
     try {
       const currentDate = new Date();
       let queryConsent = {

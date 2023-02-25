@@ -350,7 +350,6 @@ export default (provider) => {
         client_id: params.client_id,
         consent: true,
         details: {
-          insertConsent: consentDetails.prevConsent === null,
           rejectedScopes: result.consent.rejectedScopes,
           rejectedClaims: result.consent.rejectedClaims,
           promptedScopes: scopes,
@@ -376,14 +375,14 @@ export default (provider) => {
 
   router.get('/interaction/:uid/abort', async (ctx) => {
     const interactionDetails = await provider.interactionDetails(ctx.req, ctx.res);
-    const { prompt: { name, details }, params, session: { accountId } } = interactionDetails;
+    const { prompt: { details }, params, session: { accountId } } = interactionDetails;
     ctx.request.byme_sub = accountId;
     ctx.request.byme_client = params.client_id;
     const result = {
       error: 'access_denied',
       error_description: 'End-User aborted interaction',
     };
-    await Account.CreateOrUpdateConsent(ctx, iDetails.prompt.details, {
+    await Account.CreateOrUpdateConsent(ctx, details, {
       subject: accountId,
       client_id: params.client_id,
       consent: false,
