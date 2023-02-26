@@ -4,8 +4,6 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
 import constant from '../configurations/constant.js';
 const JWKS = createRemoteJWKSet(new URL(`${constant.issuer}/jwks`));
 
-
-
 export const verify_token = async (ctx, next) => {
   let jwtToken = null;
   if (ctx.request.header.authorization && ctx.request.header.authorization.startsWith('Bearer ')) {

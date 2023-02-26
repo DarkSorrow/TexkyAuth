@@ -549,7 +549,7 @@ class Account {
         queryConsent.query = 'INSERT INTO account.consent_subject (subject,client_id,consent,detail_json,updated_at,created_at) VALUES (?,?,?,?,?,?)';
         queryConsent.params.push(currentDate);
         subjectCopy.query = 'INSERT INTO account.consent_application (client_id,subject,consent,detail_json,updated_at,created_at) VALUES (?,?,?,?,?,?)';
-        subjectCopy.push(currentDate);
+        subjectCopy.params.push(currentDate);
       } else {
         queryConsent.query = 'INSERT INTO account.consent_subject (subject,client_id,consent,detail_json,updated_at) VALUES (?,?,?,?,?)';
         subjectCopy.query = 'INSERT INTO account.consent_application (client_id,subject,consent,detail_json,updated_at) VALUES (?,?,?,?,?)';
