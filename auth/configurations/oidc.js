@@ -29,12 +29,19 @@ const configuration = {
   clients: [{
     client_id: 'ABCgWwsfyRQ0XRAE',
     client_secret: 'ABCTTM28ulASJAqoS9PkHVMh73fnx7sX',
+    client_name: 'Admin flowpenid',
+    logo_uri: 'https://novastera.texky.com/texky-192.png',
     application_type: "native",
     cors_origins: ['http://localhost:4000', 'http://localhost:3000'], // no trailing slash authorized
     redirect_uris: ['http://localhost:4000/authentified', 'http://localhost:3000/connect/login'],
     post_logout_redirect_uris: ['http://localhost:3000/connect/logout'],
     grant_types: ["refresh_token", "authorization_code"],
     token_endpoint_auth_method: 'none', // if application_type native -> mettre a none pour avoir juste le client_id
+    consent_flow : 0, // 21
+    flow_custody : 0,// 22
+    flow_account_creation : '', // 23
+    flow_contracts : [], // 24
+
     // ... other client properties
   }],
   extraParams: ['tmpl', 'lng'],

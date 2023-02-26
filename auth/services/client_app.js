@@ -41,6 +41,14 @@ const formatCassandraApplication = (id, payload, allow = false) => {
   if (legal_id === null) {
     throw new Error('No legal entity for the application')
   }
+  let consent_flow = parseInt(payload.consent_flow, 10);
+  let flow_custody = parseInt(payload.flow_custody, 10);
+  if (consent_flow === NaN) {
+    consent_flow = 0;
+  }
+  if (flow_custody === NaN) {
+    flow_custody = 0;
+  }
   return ([
     id,//client_id 0
     payload.client_secret,//client_secret 1
@@ -63,8 +71,8 @@ const formatCassandraApplication = (id, payload, allow = false) => {
     (payload.post_logout_redirect_uris) ? payload.post_logout_redirect_uris : [],//post_logout_redirect_uris 18
     (payload.notif_params_json) ? payload.notif_params_json : '',//notif_params_json 19
     (payload.cors_allowed) ? payload.cors_allowed : [], // 20
-    (payload.consent_flow) ? payload.consent_flow : '', // 21
-    (payload.flow_custody) ? payload.flow_custody : '',// 22
+    consent_flow, // 21
+    flow_custody,// 22
     (payload.flow_account_creation) ? payload.flow_account_creation : '', // 23
     (payload.flow_contracts) ? payload.flow_contracts : [], // 24
     legal_id,//legal entity 25

@@ -1,0 +1,55 @@
+<!-- <app-hello> is only visible to components within pages/loginflow -->
+
+class {
+  onCreate() {
+    this.state = {
+      count: 0
+    }//${input.consent_flow} ${input.flow_custody}
+  }
+  onMount() {
+    console.log("Mounted in the browser!");
+  }
+  increment() {
+    this.state.count++;
+  }
+}
+
+style {
+
+}
+<if(input.flow_custody!==0)>
+  <if(input.flow_custody===1)>
+    <p>Your account will be setup following this contract <a href="#">${input.flow_account_creation}</a></p>
+  </if>
+  <else-if(input.flow_custody===2)>
+    <div class="flex-container">
+      <div class="flex-long">
+        <p>Press continue to get into the application or create and link your wallet first</p>
+      </div>
+      <div class="flex-small">
+        <button class="contrast">Create</button>
+      </div>
+    </div>
+  </else-if>
+  <else-if(input.flow_custody===3)>
+    <div class="flex-container">
+      <div class="flex-long">
+        <p>Please create or use your current flow wallet to acces the application</p>
+      </div>
+      <div class="flex-small">
+        <button class="contrast">Create</button>
+      </div>
+    </div>
+  </else-if>
+  <else-if(input.flow_custody===4)>
+    <div class="flex-container">
+      <div class="flex-long">
+        <p>Please create or use your current flow wallet to acces the application</p>
+      </div>
+      <div class="flex-small">
+        <button class="contrast">Create</button>
+      </div>
+    </div>
+  </else-if>
+  <hr />
+</if>

@@ -88,7 +88,6 @@ export default (provider) => {
     if ((session) && (session.accountId)) {
       ctx.request.app_sub = session.accountId;
     }
-
     switch (prompt.name) {
       case 'login': {
         ctx.type = "html";
@@ -126,6 +125,26 @@ export default (provider) => {
       default:
         return next();
     }
+  });
+
+  router.get('/test/consent', async (ctx) => {
+    const client = await provider.Client.find('ABCgWwsfyRQ0XRAE');
+    console.log(client)
+    ctx.request.app_client = client.clientId;
+    //The key is set in the route/social.js. The reason being that passport works with redirections
+    ctx.type = "html";
+    ctx.body = consentTmpl.stream({
+      html: ctx.state.html,
+      title: ctx.state.t('loginFlow.title'),
+      client,
+      uid: '14qdfqsdf',
+      missingOIDCScope: new Set(),
+      missingOIDCClaims: new Set(),
+      missingResourceScopes: new Set(),
+      params: {
+        scope: 'test'
+      },
+    });
   });
 
   router.get('/interaction/callback/google', (ctx) => {
@@ -442,7 +461,6 @@ export default (provider) => {
       meta: {
       },
     };
-    console.log("view result *********", result)
     ctx.request.app_sub = socialObject.subject;
     return provider.interactionFinished(ctx.req, ctx.res, result, {
       mergeWithLastSubmission: false,

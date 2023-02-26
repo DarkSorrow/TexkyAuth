@@ -1,79 +1,47 @@
 style {
-  /* Grid */
-  body > main {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: calc(100vh - 7rem);
-    padding: 1rem 0;
-  }
-
   article {
-    padding: 0;
-    overflow: hidden;
+    margin: 0 !important;
   }
 
-  article div {
-    padding: 1rem;
+  .flex-container {
+    display: flex;
   }
-
-  @media (min-width: 576px) {
-    body > main {
-      padding: 1.25rem 0;
-    }
-
-    article div {
-      padding: 1.25rem;
-    }
+  .flex-long {
+    flex: 0.6;
   }
-
-  @media (min-width: 768px) {
-    body > main {
-      padding: 1.5rem 0;
-    }
-
-    article div {
-      padding: 1.5rem;
-    }
+  .flex-small {
+    flex: 0.4;
   }
-
-  @media (min-width: 992px) {
-    body > main {
-      padding: 1.75rem 0;
-    }
-
-    article div {
-      padding: 1.75rem;
-    }
+  .flex-child {
+    flex: 1;
   }
-
-  @media (min-width: 1200px) {
-    body > main {
-      padding: 2rem 0;
-    }
-
-    article div {
-      padding: 2rem;
-    }
-  }
-
 }
-
 <app-layout lang=`${input.html.lang}` dir=`${input.html.dir}` title=`${input.title}`>
   <main class="container">
+  <div class="flex-container">
+    <if(input.client.logoUri)>
+    <div>
+      <img src=`${input.client.logoUri}` alt="logo" width="128" height="128" />
+    </div>
+    </if>
+    <div class="flex-child">
+      <h3>Application consent</h3>
+      <p>You will soon be redirected to the application ${input.client.clientName} (<a href="#">
+        term of services
+      </a> and <a href="#">
+        privacy policies
+      </a>)</p>
+    </div>
+  </div>
+      
     <article>
-      <div class="login-client-image">
-      <if(input.client.logoUri)>
-        <img src=`${input.client.logoUri}` alt="logo" />
-      </if>
-      </div>
-
+      <app-wallet consent_flow=input.client.consent_flow flow_custody=input.client.flow_custody flow_account_creation=input.client.flow_account_creation />
       <ul>
-      <if([input.missingOIDCScope, input.missingOIDCClaims, input.missingResourceScopes].filter(Boolean).length === 0)>
+      <if(input.missingOIDCScope.size === 0 && input.missingOIDCClaims.size === 0 && !input.missingResourceScopes)>
         <li>the client is asking you to confirm previously given authorization</li>
       </if>
 
-      <if(input.missingOIDCScope)>
+      <if(input.missingOIDCScope.size)>
         <li>scopes:</li>
         <ul>
           <for|scope, index, scopeList| of=input.missingOIDCScope>
