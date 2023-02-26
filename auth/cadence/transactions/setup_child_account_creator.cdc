@@ -1,4 +1,4 @@
-import ChildAccount from "../contracts/ChildAccount.cdc"
+import ChildAccount from 0xf8d6e0586b0a20c7
 
 /// Sets up a ChildAccountCreator in signer's account to enable creation of
 /// accounts & querying created addresses from the originating public key
@@ -19,3 +19,4 @@ transaction {
         signer.link<&{ChildAccount.ChildAccountCreatorPublic}>(ChildAccount.ChildAccountCreatorPublicPath,target: ChildAccount.ChildAccountManagerStoragePath)
     }
 }
+ 
