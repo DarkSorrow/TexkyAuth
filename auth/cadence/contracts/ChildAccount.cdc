@@ -1,4 +1,7 @@
  pub contract ChildAccount {
+    pub let ChildAccountManagerStoragePath: StoragePath
+    pub let ChildAccountManagerPublicPath: PublicPath
+    pub let ChildAccountManagerPrivatePath: PrivatePath
     pub let ChildAccountTagStoragePath: StoragePath
     pub let ChildAccountTagPublicPath: PublicPath
     pub let ChildAccountTagPrivatePath: PrivatePath
@@ -64,24 +67,29 @@
             // Create the child account
             let newAccount = AuthAccount(payer: signer)
 
+            self.addChildAccountTag(account: newAccount, childAccountInfo: childAccountInfo)
+
+            return newAccount
+        }
+
+        pub fun addChildAccountTag( account: AuthAccount, childAccountInfo: ChildAccountInfo): AuthAccount {
             // Create a public key for the proxy account from string value in the provided
             // ChildAccountInfo
             let key = PublicKey(publicKey: childAccountInfo.originatingPublicKey.decodeHex(), signatureAlgorithm: SignatureAlgorithm.ECDSA_P256)
             // Add the key to the new account
-            newAccount.keys.add(publicKey: key, hashAlgorithm: HashAlgorithm.SHA3_256, weight: 1000.0)
+            account.keys.add(publicKey: key, hashAlgorithm: HashAlgorithm.SHA3_256, weight: 1000.0)
 
             // Create the ChildAccountTag for the new account
-            let childTag <-create ChildAccountTag(parentAddress: self.owner!.address, address: newAccount.address, info: childAccountInfo)
+            let childTag <-create ChildAccountTag(parentAddress: self.owner!.address, address: account.address, info: childAccountInfo)
 
             // Save the ChildAccountTag in the child account's storage & link
-            newAccount.save(<-childTag, to: ChildAccount.ChildAccountTagStoragePath)
-            newAccount.link<&{ChildAccountTagPublic}>(ChildAccount.ChildAccountTagPublicPath, target: ChildAccount.ChildAccountTagStoragePath)
-            newAccount.link<&ChildAccountTag>(ChildAccount.ChildAccountTagPrivatePath, target: ChildAccount.ChildAccountTagStoragePath)
+            account.save(<-childTag, to: ChildAccount.ChildAccountTagStoragePath)
+            account.link<&{ChildAccountTagPublic}>(ChildAccount.ChildAccountTagPublicPath, target: ChildAccount.ChildAccountTagStoragePath)
+            account.link<&ChildAccountTag>(ChildAccount.ChildAccountTagPrivatePath, target: ChildAccount.ChildAccountTagStoragePath)
 
-            self.createdChildren.insert(key:childAccountInfo.originatingPublicKey, newAccount.address)
+            self.createdChildren.insert(key:childAccountInfo.originatingPublicKey, account.address)
 
-
-            return newAccount
+            return account
         }
     }
 
@@ -123,6 +131,10 @@
     }
     
     init() {
+        self.ChildAccountManagerStoragePath = /storage/ChildAccountManager
+        self.ChildAccountManagerPublicPath = /public/ChildAccountManager
+        self.ChildAccountManagerPrivatePath = /private/ChildAccountManager
+
         self.ChildAccountTagStoragePath = /storage/ChildAccountTag
         self.ChildAccountTagPublicPath = /public/ChildAccountTag
         self.ChildAccountTagPrivatePath = /private/ChildAccountTag
