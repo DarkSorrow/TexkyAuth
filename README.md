@@ -20,29 +20,42 @@ chmod 777 db-data
 
 Today a lot of application rely on user informations without keeping track of how those data are stored and used. User usually have data scattered amoung different applications and account related information scattered in different applications / places / blockchains. The aim of this tool is to allow users to keep track of all the information that are scattered around and stay up to date with what is happening in a single interface while having full autonomy on owning their data.
 
-In order to apply the soverignity of data that every user should have today we decided to leverage the child account concept that cadence has. The aim is to build a system that will allow applications to access data that are part of a `child account` and still give the ability to transfer the keys managing that child account to a `parent account` owned by the user itself
+In order to apply the self custody of data that every user should have today we decided to leverage the concepts from the flow blockchain. The aim is to build a system that will allow applications to access data that are part of a `child account` and still give the ability to transfer the management of that child account to a `parent account` owned by the user itself.
 
-The first principle tho is to have an identification ID for the user, today two element could be used to identify a user.
-  - A blockchain wallet address that would be signed with a random text each time the user try to connect
-  - An email taken from an application from the web2 ecosystem or the classical user password way
+There is however several way of acheiving the concept of `child account`. Those concept will be dependent of the `contract` implementing it which is why we decided to allow application being created to choose how they want to build this relationship while still giving them enough tool to securely interact between web2 and web3 to authentify their user. Each application being created will be able to choose a **flow_account_creator** that will be responsible of creating the relationship between the app and the user.
 
-Those two entity could be used to allow the application to display a list of account that the user own on his profile interface in the application. The use of a private key from the blockchain could allow him to remain anonymous if he wishes to but would some apps from contacting him. The share of that information could be asked by application's `contract` in order to communicate with him later
+Here is an exemple of how the parameters when creating the app
+| Name | Concept| Types | Values |
+| -------- | -------- | -------- | -------- |
+| consent_flow | Option to display a consent to the user logging to an application | tinyint | View below |
+| flow_custody | Option to define the account custody mode of the application | tinyint | View below |
+| flow_account_creation | Address (contract) used to create child account | string | 0x... |
+| flow_contracts | List of contract with their type to ease some call on profile management if needed | Dictionary<string, string> | {'nft_sort': 0x...} |
 
-An `application` when it starts can ask access or create `child accounts` based on a `contract` he lists in his application as well as the email of the user if this one is available. The email part is a classic openID claim. This action should enable user to grant the application usage and creation of a `child account` they can use.
-At first the `child account` would be created by the `master account` and linked to it with a `contract` but if a user decide to take his `account` out of the `master account` he should be able to do so with a simple transfer. However once this is done the user should have a wallet connection available in the `application` that would grant him the right to still perform actions on with his `child account`. In order to do this in the userInfo endpoint of the flowpenID server should be able to tell the application if the account link to the contract is Sovereign, Hybrid or owned by the flowpenID server. A fallback system can be created by apps in order to avoid this call if necessary and a specific error will be received from the flowpenID server if the endpoint being called don't have the necessary private keys to perform the action.
 
-That last part is a bit tricky as it required full trust of the user with the plateform. The say not your keys not your asset can also be extended to not only your keys not *your* assets :D. That being said we also fully understand the ease of use of centralised system and the need for those system to be reliable and have a good reputation. The fact that the blockchain ecosystem exist and provide transparent transaction and such could be leverage to give a degree of trust to users but this might require application users to provide more information off chain and have legal entities that are not anonymous guarantee them.
+In order to acheive this a configuration will have to be made and the `consent` page of openID will be leverage to give a choice to the user but also start an early education if needed. Several options will be available to the Dapp creator to let a user access his Dapp
+
+1. Consent flow available
+
+|Value| Concept  |
+| - | -------- |
+| 0 | Seamless: create a global wallet attached to the **flow_account_creation** of flowpenID |
+| 1 | Seamless specifc: create a wallet attached to the  **flow_account_creation** specified, an option to see audited by and security related will be displayed on consent |
+| 2 | User choice: when the user first log he will have the choice of creating his account or use a **flow_account_creation** |
+| 3 | User only: The user must create his self custody wallet in order to access the app |
+| 4 | User hybrid: The user must create his self custody wallet in order to access the app and the **flow_account_creation** will be run to help him attached the required informations, multi sig information etc... |
 
 ## Concepts
 
 A few concept should exist in the flowpenID server in order to ease the comprehension of the system to developers.
 
-| Name | Concept| Types | Values |
-| -------- | -------- | -------- | -------- |
-| consent_flow | Option to display a consent to the user logging to an application | tinyint | TBD |
-| flow_custody | Option to define the account custody mode of the application | tinyint | TBD |
-| flow_account_creation | Address (contract) used to create child account | string | 0x... |
-| flow_contracts | List of contract with their type to ease some call on profile management if needed | Dictionary<string, string> | {'nft_sort': 0x...} |
+A user token should have the `flow_custody` information to help a Dapp know how to handle him 
+|Value| Concept  |
+| - | -------- |
+| 0 | FlowpenID main contract |
+| 1 | Custom contract  |
+| 2 | User owned  |
+| 2 | Hybrid owned  |
 
  1. Application administration
 
