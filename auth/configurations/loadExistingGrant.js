@@ -33,7 +33,7 @@ export default async (ctx) => {
   const consentDetails = {
     prevConsent: null,
     changeConsentEntity: null,
-    legalEntityId: ctx.oidc.client.legal_entity_id,
+    legalEntityId: ctx.oidc.client.legal_id,
   };
   
   consentDetails.prevConsent = await Account.findConsent(

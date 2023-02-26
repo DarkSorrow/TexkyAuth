@@ -39,7 +39,8 @@ const configuration = {
   }],
   extraParams: ['tmpl', 'lng'],
   extraClientMetadata: {
-    properties: ['client_application_type', 'cors_origins', 'consent_flow', 'flow_custody', 'flow_account_creation', 'flow_contracts', 'notif_params_json'],
+    properties: ['client_application_type', 'cors_origins', 'consent_flow',
+    'flow_custody', 'flow_account_creation', 'flow_contracts', 'notif_params_json', 'legal_id'],
     validator(ctx, key, value, metadata) {
       if (key === 'cors_origins') {
         // set default (no CORS)

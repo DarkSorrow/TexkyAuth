@@ -527,26 +527,40 @@ class Account {
   static async CreateOrUpdateConsent(ctx, details, appConsent) {
     try {
       const currentDate = new Date();
-      let queryConsent = {
+      const queryConsent = {
         params: [
-          driver.types.TimeUuid.fromString(appConsent.subject),//subject timeuuid,
-          appConsent.client_id,//client_id text,
-          appConsent.consent,//consent boolean
-          (appConsent.details) ? JSON.stringify(appConsent.details) : null,
-          currentDate,//updated_at timestamp,
+          driver.types.TimeUuid.fromString(appConsent.subject),//subject timeuuid, 0
+          appConsent.client_id,//client_id text, 1
+          appConsent.consent,//consent boolean 2
+          (appConsent.details) ? JSON.stringify(appConsent.details) : null,//3
+          currentDate,//updated_at timestamp,//4
         ]
       };
+      const subjectCopy = {
+        params: [
+          queryConsent.params[1],
+          queryConsent.params[0],
+          queryConsent.params[3],
+        ]
+      }
       if (details.prevConsent === null) {
         queryConsent.query = 'INSERT INTO account.consent_subject (subject,client_id,consent,detail_json,updated_at,created_at) VALUES (?,?,?,?,?,?)';
         queryConsent.params.push(currentDate);
+        subjectCopy.query = 'INSERT INTO account.consent_application (client_id,subject,consent,created_at) VALUES (?,?,?,?)';
+        subjectCopy.push(currentDate);
       } else {
         queryConsent.query = 'INSERT INTO account.consent_subject (subject,client_id,consent,detail_json,updated_at) VALUES (?,?,?,?,?)';
+        subjectCopy.query = 'INSERT INTO account.consent_application (client_id,subject,consent) VALUES (?,?,?)';
       }
-      await cql.execute(
+      await Promise.all([cql.execute(
         queryConsent.query,
         queryConsent.params,
         { prepare: true },
-      );
+      ), cql.execute(
+        subjectCopy.query,
+        subjectCopy.params,
+        { prepare: true },
+      )]);
       return (true);
     } catch (err) {
       throw (err);
