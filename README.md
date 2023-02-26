@@ -6,6 +6,8 @@ Secure authentication system leveraging flow blockchain resources concept ease o
 
 - NodeJS 18 - [Documentation](https://nodejs.org/dist/latest-v18.x/docs/api/)
 - Flow - [Documentation](https://developers.flow.com/learn/concepts)
+- Cassandra - [Documentation](https://cassandra.apache.org/)
+- Redis - [Documentation](https://redis.io/)
 
 ## 🛠️ Run the application
 ```bash
