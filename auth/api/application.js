@@ -94,6 +94,45 @@ router.get('/api/application/:clientID', verify_token, async (ctx) => {
   }
 });
 
+router.get('/api/application/:clientID/subjects', verify_token, async (ctx) => {
+  const options = { prepare : true, fetchSize :  200 };
+  if (ctx.request.query.pageState) {
+    try {
+      const stateObject = await passwordManager.decryptHackathon(ctx.request.query.pageState);
+      options.pageState = stateObject.pageState
+    } catch (err) {
+      ctx.log.error({ err }, '[StateObjectError]');
+      ctx.status = 400;
+      ctx.body = erroObject('PageStateError');
+      return;
+    }
+  }
+  const legalApp = await clientApplication.checkClient(ctx.request.params.clientID);
+  if (legalApp.equals(ctx.state.legal)) {
+    ctx.request.body.legal_id = ctx.state.legal;
+    const result = await ctx.cassandra.cql.execute(
+      'SELECT subject,consent,detail_json,updated_at,created_at FROM account.consent_application WHERE client_id = ?;',
+      [ctx.request.params.clientID], options,
+    );
+    let pageID = null;
+    if (result.pageState) {
+      pageID = await passwordManager.encryptHackathon({
+        pageState: result.pageState
+      });
+    }
+    ctx.body = {
+      status: 1,
+      data: result.rows,
+      options: {
+        pageID,
+      }
+    };
+    return;
+  }
+  ctx.status = 404;
+  ctx.body = erroObject('NotFound');
+});
+
 router.post('/api/application', body, verify_token, async (ctx) => {
   if (ctx.request.body.client_id) {
     // update
@@ -130,13 +169,10 @@ router.post('/api/application', body, verify_token, async (ctx) => {
  */
 router.post('/api/application/:clientID/reset', verify_token, async (ctx) => {
   // ctx.request.params.clientID
-  if (ctx.body.client_id) {
-    // update
-    const legalApp = await clientApplication.checkClient(ctx.body.client_id);
-    if (legalApp.equals(ctx.state.legal)) {
-      ctx.body.legal_id = ctx.state.legal;
-      clientApplication.upsertClient(ctx.body.client_id, ctx.body);
-    }
+  const legalApp = await clientApplication.checkClient(ctx.request.params.clientID);
+  if (legalApp.equals(ctx.state.legal)) {
+    ctx.body.legal_id = ctx.state.legal;
+    // clientApplication.upsertClient(ctx.request.params.clientID, ctx.body);
   }
   ctx.status = 404;
   ctx.body = erroObject('NotFound');

@@ -20,6 +20,7 @@ import homeRouter from './pages/home/index.js';
 import socialRouter from './pages/social/index.js';
 import apiApplicationRouter from './api/application.js';
 import apiFlowRouter from './api/flow.js';
+import apiSubjectRouter from './api/subject';
 import errors from './services/error.js';
 
 //Configure lasso bundle for marko templates
@@ -136,6 +137,7 @@ provider.use(socialRouter(provider).routes());
 provider.use(homeRouter.routes());
 provider.use(apiApplicationRouter.routes());
 provider.use(apiFlowRouter.routes());
+provider.use(apiSubjectRouter.routes());
 // Start the server
 const server = provider.listen(constant.port, () => {
   logger.warn(`oidc-provider listening on port ${constant.port}, check ${constant.issuer}/.well-known/openid-configuration`);
