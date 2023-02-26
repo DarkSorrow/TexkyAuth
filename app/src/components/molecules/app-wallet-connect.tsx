@@ -5,22 +5,39 @@ import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import ListItemContent from '@mui/joy/ListItemContent';
 import Typography from '@mui/joy/Typography';
 import { useTranslation } from "react-i18next";
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors/injected';
+
+import { useState, useEffect } from "react"
+import * as fcl from "@onflow/fcl";
+
+const DISCOVERY_WALLET = 'https://fcl-discovery.onflow.org/testnet/authn';
+const API = 'https://rest-testnet.onflow.org';
 
 // <ListItemButton variant="soft" color="primary">
 export const AppWalletConnect = () => {
   const { t } = useTranslation();
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  })
-  const { disconnect } = useDisconnect();
+  const [user, setUser] = useState<FlowUser>();
+  useEffect(() => fcl.currentUser.subscribe(setUser), []); // sets the callback for FCL to use
+
+  const connectWallet = async () => {
+    const res = await fcl.authenticate();
+    console.log(res);
+
+  }
+
+  useEffect(() => {
+    console.log(user);
+  }, [user])
+
+  fcl.config()
+  .put('app.detail.icon','https://placekitten.com/g/200/200')
+  .put('app.detail.title','Kitten Dapp')
+  .put('accessNode.api', API)
+  .put('discovery.wallet', DISCOVERY_WALLET);
 
   return (
     <ListItem>
-      {(isConnected) ?
-        <ListItemButton onClick={() => disconnect()}>
+      {(user?.loggedIn) ?
+        <ListItemButton onClick={fcl.unauthenticate}>
           <ListItemDecorator>
             <Box
               sx={{
@@ -33,12 +50,12 @@ export const AppWalletConnect = () => {
           </ListItemDecorator>
           <ListItemContent>
             <Typography level="body2" noWrap>
-              {t<string>('dWallet', { address })}
+              {t<string>('dWallet', {address: user.addr})}
             </Typography>
           </ListItemContent>
         </ListItemButton>
         :
-        <ListItemButton onClick={() => connect()}>
+        <ListItemButton onClick={connectWallet}>
           <ListItemDecorator>
             <Box
               sx={{
