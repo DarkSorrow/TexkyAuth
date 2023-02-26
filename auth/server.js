@@ -20,7 +20,7 @@ import homeRouter from './pages/home/index.js';
 import socialRouter from './pages/social/index.js';
 import apiApplicationRouter from './api/application.js';
 import apiFlowRouter from './api/flow.js';
-import apiSubjectRouter from './api/subject';
+import apiSubjectRouter from './api/subject.js';
 import errors from './services/error.js';
 
 //Configure lasso bundle for marko templates
