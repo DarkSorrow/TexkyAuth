@@ -25,10 +25,10 @@ export const verify_token = async (ctx, next) => {
       }
     } catch (err) {
       ctx.status = 401;
-      ctx.body = new ctx.errors.getError('001');
+      ctx.body = ctx.errors.getError('001');
     }
   }
   ctx.status = 403;
-  ctx.body = new ctx.errors.getError('012');
+  ctx.body = ctx.errors.getError('012');
   return ctx.body;
 }
