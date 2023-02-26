@@ -43,7 +43,7 @@ router.get('/api/profile/applications', verify_token, async (ctx) => {
     }
   }
   try {
-    ctx.request.body.legal_id = ctx.state.legal;
+    ctx.request.query.legal_id = ctx.state.legal;
     const result = await ctx.cassandra.cql.execute(
       'SELECT client_id,consent,detail_json,updated_at,created_at FROM account.consent_subject WHERE subject = ?;',
       [ctx.state.subject], options,

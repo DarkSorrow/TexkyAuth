@@ -42,7 +42,7 @@ const accessToken = await ctx.oidc.provider.AccessToken.find(accessTokenValue);
 */
 // List account that the current logged user can use [own accounts, app accounts]
 router.get('/api/flow/my/accounts', (ctx) => {
-  ctx.body = {};
+  ctx.body = [];
 });
 
 // Move to flow service if working
