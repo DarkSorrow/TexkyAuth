@@ -1,3 +1,8 @@
+ //Emulator
+ import FlowToken from 0x0ae53cb6e3f42a79
+ //TestNet
+ //import FlowToken from 0x7e60df042a9c0868
+
  pub contract ChildAccount {
     pub let AuthAccountCapabilityPath: CapabilityPath
     pub let ChildAccountManagerStoragePath: StoragePath
@@ -15,10 +20,11 @@
         pub let email: String
         pub let originatingPublicKey: String
 
-        init(name: String, mailAdress: String, email: String, originatingPublicKey: String) {
+        init(name: String, mailAdress: String, email: String, age: UInt64, originatingPublicKey: String) {
             self.name = name
             self.mailAdress = mailAdress
             self.email = email
+            self.age = age
             self.originatingPublicKey = originatingPublicKey
         }
     }
@@ -46,6 +52,10 @@
                     "Parent has already been assigned to this ChildAccountTag as ".concat(self.parentAddress!.toString())
             }
             self.parentAddress = address
+        }
+
+        pub let isGrownUp(grownUpLimite: UInt64) {
+            return grownUpLimite >= self.info.age
         }
     }
 
@@ -129,13 +139,27 @@
             return &self.childAccounts[address] as &ChildAccountController?
         }
 
-        pub fun createChildAccount( signer: AuthAccount, childAccountInfo: ChildAccountInfo, authAccountCapPath: CapabilityPath): AuthAccount {
+        pub fun createChildAccount( signer: AuthAccount, initialFundingAmount: UFix64, childAccountInfo: ChildAccountInfo, authAccountCapPath: CapabilityPath): AuthAccount {
             // Create the child account
             let newAccount = AuthAccount(payer: signer)
 
             self.addChildAccountTag(account: newAccount, childAccountInfo: childAccountInfo, authAccountCapPath: authAccountCapPath)
 
+            let fundingProvider = signer.borrow<&FlowToken.Vault{FungibleToken.Provider}>(from: /storage/flowTokenVault)!
+            // Fund the new account with the initialFundingAmount specified
+            newAccount.getCapability<&FlowToken.Vault{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+                .borrow()!
+                .deposit(from: <-fundingProvider.withdraw(amount: initialFundingAmount))
+
             return newAccount
+        }
+
+        pub fun removeChildAccount(withAddress: Address) {
+            if let controller: @ChildAccountController <-self.childAccounts.remove(key: withAddress) {
+                // Get a reference to the ChildAccountTag from the Capability
+                let tagRef = controller.getChildTagRef()
+                destroy controller
+            }
         }
 
         pub fun getChildAccountRef(address: Address): &AuthAccount? {
@@ -164,8 +188,6 @@
             // Create ChildAccountController
             let controller <-create ChildAccountController(authAccountCap: childAccountCap)
             // Add the controller to this manager
-            log("addChildAccountTag")
-            log(account.address)
             self.childAccounts[account.address] <-! controller
 
             return account
