@@ -72,6 +72,14 @@ class BuildError {
         statusCode: 400,
         message: 'SOCIAL_LOGIN_SUSPENDED',
       },
+      '016': {
+        statusCode: 400,
+        message: 'WALLET_LOGIN_UNVERIFIED',
+      },
+      '017': {
+        statusCode: 400,
+        message: 'WALLET_LOGIN_ERROR',
+      },
     }
   }
 

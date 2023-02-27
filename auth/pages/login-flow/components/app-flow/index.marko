@@ -5,14 +5,15 @@ class {
     }//${input.consent_flow} ${input.flow_custody}
   }
   onMount() {
-    console.log("Mounted in the browser!");
+    const flowAction = document.getElementById("flow-action");
+    flowAction.ariaBusy = "false";
+    flowAction.disabled = false;
     document.getElementById("flow-form").addEventListener("submit", function(event){
       event.preventDefault();
       fetch('/social/.well-generated', {
         method: 'PATCH',
       }).then((res) => {
         res.text().then((val) => {
-          console.log('nonce', val)
           window.fclConnect.config().put(
             "fcl.accountProof.resolver", () => ({
               appIdentifier: 'flowpenID',
@@ -40,5 +41,5 @@ class {
 
 <form autocomplete="off" name="flow-form" id="flow-form" action=`/interaction/${input.uid}/flow` method="post">
   <input type="hidden" name="fcl" id="fcl" value="xd241q">
-  <button type="submit">Login with flow</button>
+  <button id="flow-action" name="flow-action" type="submit" aria-busy="true" disabled>Login with flow</button>
 </form>

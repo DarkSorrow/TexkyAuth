@@ -6,6 +6,7 @@ import { passwordManager } from '../configurations/password.js';
 import { cql, driver } from './cassandra.js';
 import listClaims from '../configurations/claims.js';
 import { logger } from './logger.js';
+import constant from '../configurations/constant.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -668,93 +669,148 @@ class Account {
   /**
    * Check or create the flow account for the user
    * @param {*} ctx 
+   * @param {*} address - Flow address 
    * @returns 
    */
-  static async findOrCreateFlow(ctx) {
+  static async findOrCreateFlow(ctx, address, providerData) {
     try {
-      const exist = await cql.execute(
-        'SELECT email FROM account.login_email WHERE email = ?;',
-        [email],
+      const currentDate = new Date();
+      const flowAccount = await cql.execute(
+        'SELECT suspended,subject FROM account.login_flow WHERE network = ? AND address = ?;',
+        [constant.flow.NETWORK, address],
         { prepare: true },
       );
-      if (exist.rowLength > 0) {
-        throw new Error('ERR_UNIQUE');
+      if (flowAccount.rowLength === 0) {
+        // Some wallet allow the display of the email we could recover it and push it in the profile
+        // of the user but do we want to keep doing this?
+        // If account is suspended, he can't create a social account
+        const subject = driver.types.TimeUuid.now();
+        const entity = driver.types.TimeUuid.now();
+        const profileLocation = lookupProfileRegion();
+        const batchQuery = [{
+          query: 'INSERT INTO account.login_flow (address,network,subject,suspended,provider_data_json,created_at,updated_at,last_login) VALUES (?,?,?,?,?,?,?,?)',
+          params: [
+            address, //address
+            constant.flow.NETWORK, // network
+            subject, //subject
+            false, //suspended
+            providerData,//provider_data_json
+            currentDate, //created_at
+            currentDate,//updated_at
+            currentDate,//last_login
+          ]
+        },{
+          query: 'INSERT INTO account.legal_entity (id,creator) VALUES (?,?)',
+          params: [
+            entity, //subject
+            subject, //email
+          ]
+        },{
+          query: 'INSERT INTO account.subject_groups (subject,legal_id) VALUES (?,?)',
+          params: [
+            subject, //email
+            entity, //subject
+          ]
+        },];
+        await cql.batch(batchQuery, { prepare: true });
+        return ({
+          address,
+          subject: subject.toString(),
+          mfa_type: false,
+          profile_location: profileLocation,
+          profile_update: currentDate,
+        });
+
+      } else if (flowAccount.rows[0].suspended === true) {
+        logger.warn({ byme_sub: flowAccount.rows[0].subject }, 'Suspended account trying to create social account');
+        return ({
+          suspended: flowAccount.rows[0].suspended,
+          code: '013',
+        });
+      } else {
+        const profileLocation = lookupProfileRegion();//TODO: check the country maybe
+        return ({
+          address: flowAccount.rows[0].address,
+          subject: flowAccount.rows[0].subject.toString(),
+          mfa_type: false,
+          profile_location: profileLocation,
+          profile_update: currentDate,
+        });
       }
-
-      const algUsed = 0; // default password encryption used
-      const pwdObject = await passwordManager.encrypt(ctx.request.body.pwd, algUsed); // need to be encrypted
-      const currentDate = new Date();
-      const subject = driver.types.TimeUuid.now();
-      const entity = driver.types.TimeUuid.now();
-      const profileLocation = lookupProfileRegion();//TODO: check the country maybe
-
-      // Move the parsing of the user here so that we can check the country just after
-      // If no user is being created (no name or country) we don't allow the creation of the account
-      //const userInfo = (ctx.request.body.user_info !== undefined) ? verifyValue(userDefinition, ctx.request.body.user_info) : {};
-      const batchQuery = [{
-        query: 'INSERT INTO account.login_email (email,subject,email_verified,mfa_type,profile_location,profile_update,suspended,updated_at,enc_type,salt,password) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-        params: [
-          email, //email
-          subject, //subject
-          false, //email_verified
-          false,//mfa_type
-          profileLocation, //profile_location
-          currentDate,//profile_update
-          false,//suspended
-          currentDate,//updated_at
-          algUsed,//enc_type
-          pwdObject.salt,//salt
-          pwdObject.password,//password
-        ]
-      },{
-        query: 'INSERT INTO account.legal_entity (id,creator) VALUES (?,?)',
-        params: [
-          entity, //subject
-          subject, //email
-        ]
-      },{
-        query: 'INSERT INTO account.subject_groups (subject,legal_id) VALUES (?,?)',
-        params: [
-          subject, //email
-          entity, //subject
-        ]
-      },/*{
-        query: 'INSERT INTO userdata.user_informations (subject,email,email_verified,updated_at,created_at,phone,phone_verified,name,given_name,family_name,middle_name,nickname,preferred_username,profile,picture,website,gender,birthdate,birthday_type,zoneinfo,locale) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        params: [
-          subject,//subject timeuuid,
-          email,
-          false,
-          currentDate,//updated_at timestamp,
-          currentDate,//created_at timestamp,
-          (userInfo.phone) ? userInfo.phone : '',//phone text,
-          (userInfo.phone_verified) ? userInfo.phone_verified : false,//phone_verified boolean,
-          (userInfo.name) ? userInfo.name : '',//name text,
-          (userInfo.given_name) ? userInfo.given_name : '',//given_name text,
-          (userInfo.family_name) ? userInfo.family_name : '',//family_name text,
-          (userInfo.middle_name) ? userInfo.middle_name : '',//middle_name text,
-          (userInfo.nickname) ? userInfo.nickname : '',//nickname text,
-          (userInfo.preferred_username) ? userInfo.preferred_username : '',//preferred_username text,
-          (userInfo.profile) ? userInfo.profile : '',//profile text,
-          (userInfo.picture) ? userInfo.picture : '',//picture text,
-          (userInfo.website) ? userInfo.website : '',//website text,
-          (userInfo.gender) ? userInfo.gender : '',//gender text,
-          (userInfo.birthdate) ? userInfo.birthdate : '',//birthdate text,
-          (userInfo.birthday_type) ? userInfo.birthday_type : 0,//birthday_type tinyint,
-          (userInfo.zoneinfo) ? userInfo.zoneinfo : '',//zoneinfo text,
-          (userInfo.locale) ? userInfo.locale : '',//locale text,
-        ]
-      }*/];
-      await cql.batch(batchQuery, { prepare: true });
-      // login structure
-      return ({
-        email,
-        subject: subject.toString(),
-        mfa_type: false,
-        profile_location: profileLocation,
-        profile_update: currentDate,
-      });
     } catch (err) {
       logger.error(err, '[Account:Register]');
+      throw err;
+    }
+  }
+
+  
+  static async findOrCreateWagmi(ctx, address, chainID) {
+    try {
+      const currentDate = new Date();
+      const WagmiAccount = await cql.execute(
+        'SELECT suspended,subject FROM account.login_chain_id WHERE chain_id = ? AND address = ?;',
+        [chainID, address],
+        { prepare: true },
+      );
+      if (WagmiAccount.rowLength === 0) {
+        // Some wallet allow the display of the email we could recover it and push it in the profile
+        // of the user but do we want to keep doing this?
+        // If account is suspended, he can't create a social account
+        const subject = driver.types.TimeUuid.now();
+        const entity = driver.types.TimeUuid.now();
+        const profileLocation = lookupProfileRegion();
+        const batchQuery = [{
+          query: 'INSERT INTO account.login_chain_id (address,chain_id,subject,suspended,provider_data_json,created_at,updated_at,last_login) VALUES (?,?,?,?,?,?,?,?)',
+          params: [
+            address, //address
+            chainID, // network
+            subject, //subject
+            false, //suspended
+            null,//provider_data_json
+            currentDate, //created_at
+            currentDate,//updated_at
+            currentDate,//last_login
+          ]
+        },{
+          query: 'INSERT INTO account.legal_entity (id,creator) VALUES (?,?)',
+          params: [
+            entity, //subject
+            subject, //email
+          ]
+        },{
+          query: 'INSERT INTO account.subject_groups (subject,legal_id) VALUES (?,?)',
+          params: [
+            subject, //email
+            entity, //subject
+          ]
+        },];
+        await cql.batch(batchQuery, { prepare: true });
+        return ({
+          address,
+          subject: subject.toString(),
+          mfa_type: false,
+          profile_location: profileLocation,
+          profile_update: currentDate,
+        });
+
+      } else if (WagmiAccount.rows[0].suspended === true) {
+        logger.warn({ byme_sub: WagmiAccount.rows[0].subject }, 'Suspended account trying to create social account');
+        return ({
+          suspended: WagmiAccount.rows[0].suspended,
+          code: '013',
+        });
+      } else {
+        const profileLocation = lookupProfileRegion();//TODO: check the country maybe
+        return ({
+          address: WagmiAccount.rows[0].address,
+          subject: WagmiAccount.rows[0].subject.toString(),
+          mfa_type: false,
+          profile_location: profileLocation,
+          profile_update: currentDate,
+        });
+      }
+    } catch (err) {
+      logger.error(err, '[Account:Wagmi]');
       throw err;
     }
   }

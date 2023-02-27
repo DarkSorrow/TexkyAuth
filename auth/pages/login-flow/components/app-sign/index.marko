@@ -14,6 +14,7 @@ class {
   <h2>Already have an account? <a href="#" on-click('increment')>Sign in</a></h2>
 </hgroup>
 <form autocomplete="off" action=`/interaction/${input.uid}/register` method="post">
+  <input type="hidden" name="_csrf" value=`${input.csrf}`/>
   <input type="text" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required>
   <input type="password" name="pwd" placeholder="Password" aria-label="Password" autocomplete="current-pwd" required>
   <button type="submit" class="contrast">Register</button>
@@ -25,6 +26,7 @@ class {
   <h2>No account yet? <a href="#" on-click('increment')>Sign up</a></h2>
 </hgroup>
 <form autocomplete="off" action=`/interaction/${input.uid}/login` method="post">
+  <input type="hidden" name="_csrf" value=`${input.csrf}`/>
   <input type="text" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required>
   <input type="password" name="password" placeholder="Password" aria-label="Password" autocomplete="password" required>
   <fieldset>

@@ -1,11 +1,16 @@
 CREATE KEYSPACE IF NOT EXISTS account WITH replication = {'class':'SimpleStrategy', 'replication_factor': 1 };
 
 // DROP TABLE IF EXISTS account.subject_account;
-CREATE TABLE account.subject_account ( 
+CREATE TABLE IF NOT EXISTS account.subject_account ( 
     subject timeuuid,
+	login_type set<text>,
+    suspended boolean,
+    profile_location int,
+    profile_update timestamp,
     flow_account text,
     flow_key text,
     flow_rules blob,
+    updated_at timestamp,
     PRIMARY KEY (subject) 
 );
 
@@ -40,8 +45,8 @@ CREATE TABLE IF NOT EXISTS account.login_social (
 );
 
 CREATE TABLE IF NOT EXISTS account.login_chain_id (
-    chain_id int,
     address text,
+    chain_id int,
     chain_name text,
     subject timeuuid,
     suspended boolean,
@@ -54,14 +59,14 @@ CREATE TABLE IF NOT EXISTS account.login_chain_id (
 
 CREATE TABLE IF NOT EXISTS account.login_flow (
     address text,
-    chain_name text,
+    network text,
     subject timeuuid,
     suspended boolean,
     provider_data_json text,
     created_at timestamp,
     updated_at timestamp,
     last_login timestamp,
-    PRIMARY KEY (address)
+    PRIMARY KEY (network, address)
 );
 
 CREATE TABLE IF NOT EXISTS account.application ( 

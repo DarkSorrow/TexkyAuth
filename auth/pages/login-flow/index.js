@@ -5,6 +5,7 @@ import { strict as assert } from 'node:assert';
 import marko from "marko";
 import { nanoid } from 'nanoid';
 import { AppUtils } from "@onflow/fcl";
+import { verifyMessage } from 'ethers/lib/utils.js';
 
 import Account from '../../services/account.js';
 import { sessionCheckMiddleware } from '../error/index.js';
@@ -99,13 +100,15 @@ export default (provider) => {
     if ((session) && (session.accountId)) {
       ctx.request.app_sub = session.accountId;
     }
+    const csrf = nanoid(14);
+    ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
     switch (prompt.name) {
       case 'login': {
         ctx.type = "html";
         ctx.body = loginTmpl.stream({
           html: ctx.state.html,
           title: ctx.state.t('loginFlow.title'),
-          csrf: nanoid(14),
+          csrf,
           uid,
         });
         return;
@@ -126,6 +129,7 @@ export default (provider) => {
           title: ctx.state.t('loginFlow.title'),
           client,
           uid,
+          csrf,
           missingOIDCScope,
           missingOIDCClaims,
           missingResourceScopes,
@@ -149,6 +153,7 @@ export default (provider) => {
       title: ctx.state.t('loginFlow.title'),
       client,
       uid: '14qdfqsdf',
+      csrf: 'sfqdsfqsf',
       missingOIDCScope: new Set(),
       missingOIDCClaims: new Set(),
       missingResourceScopes: new Set(),
@@ -187,10 +192,12 @@ export default (provider) => {
     if (error !== null) {
       ctx.type = 'html';
       ctx.status = error.statusCode;
+      const csrf = nanoid(14);
+      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
       ctx.body = loginTmpl.stream({
         html: ctx.state.html,
         title: ctx.state.t('loginFlow.title'),
-        csrf: nanoid(14),
+        csrf,
         uid,
         error,
       });
@@ -204,7 +211,7 @@ export default (provider) => {
         accountId: account.subject,
         acr: 'urn:mace:incommon:iap:bronze',
         amr: [
-          'pwd',
+          'login',
           account.mfa_type,
           account.profile_location,
           account.profile_update,
@@ -230,11 +237,13 @@ export default (provider) => {
         let error = ctx.errors.getError('002', validation.wrongData);
         ctx.type = 'html';
         ctx.response.status = error.statusCode;
+        const csrf = nanoid(14);
+        ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
         ctx.body = loginTmpl.stream({
           html: ctx.state.html,
           title: ctx.state.t('loginFlow.title'),
           register: true,
-          csrf: nanoid(14),
+          csrf,
           uid,
           error,
         });
@@ -272,11 +281,13 @@ export default (provider) => {
       const error = ctx.errors.getError(errorCode);
       ctx.type = 'html';
       ctx.response.status = error.statusCode;
+      const csrf = nanoid(14);
+      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
       ctx.body = loginTmpl.stream({
         html: ctx.state.html,
         title: ctx.state.t('loginFlow.title'),
         register: true,
-        csrf: nanoid(14),
+        csrf,
         uid,
         error,
       });
@@ -288,13 +299,13 @@ export default (provider) => {
     const { uid, params } = await provider.interactionDetails(ctx.req, ctx.res);
     ctx.request.app_client = params.client_id;
     let error = null;
+    let accountProof = null;
     if (ctx.request.body.fcl) {
       try {
         const proof = JSON.parse(ctx.request.body.fcl);
-        const accountProof = getAccountProof(proof);
-        ctx.log.error({ proof, nonce: ctx.cookies.get('nonrf') }, "before");
+        accountProof = getAccountProof(proof);
         if (accountProof/* && ctx.cookies.get('nonrf') === accountProof.nonce*/) {
-          ctx.log.error({ accountProof }, "AccountProof verifyAccountProof");
+          ctx.log.error({ accountProof, nonce: ctx.cookies.get('nonrf') }, "AccountProof verifyAccountProof");
           const isValid = await AppUtils.verifyAccountProof(
             'flowpenID',
             {
@@ -303,38 +314,118 @@ export default (provider) => {
               signatures: accountProof.signatures,
             },
           )
-          ctx.log.error({ accountProof, isValid }, "AccountProof ********");
           if (!isValid) {
-            error = ctx.errors.getError('004');
+            error = ctx.errors.getError('016');
           }  
         }
       } catch (err) {
         ctx.log.error({ err }, '[Flow registration]')
-        error = ctx.errors.getError('001');
+        error = ctx.errors.getError('017');
       }
     }
-    error = true;
-    if (error !== null) {
+    if (error !== null || accountProof === null) {
       ctx.type = 'html';
       ctx.status = 400;
+      const csrf = nanoid(14);
+      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
       ctx.body = loginTmpl.stream({
         html: ctx.state.html,
         title: ctx.state.t('loginFlow.title'),
-        csrf: nanoid(14),
+        csrf,
         uid,
         error,
       });
       return;
     }
-    // debug purpose, remove later no tracking needed :D
-    Account.updateLastLogin(ctx, account.email);
-
+    const account = await Account.findOrCreateFlow(ctx, accountProof.address, ctx.request.body.fcl);
+    if (account.suspended === true) {
+      ctx.type = 'html';
+      ctx.status = 400;
+      const csrf = nanoid(14);
+      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
+      ctx.body = loginTmpl.stream({
+        html: ctx.state.html,
+        title: ctx.state.t('loginFlow.title'),
+        csrf,
+        uid,
+        error,
+      });
+      return;
+    }
     const result = {
       login: {
         accountId: account.subject,
         acr: 'urn:mace:incommon:iap:bronze',
         amr: [
-          'pwd',
+          `flow:${account.address}`,
+          account.mfa_type,
+          account.profile_location,
+          account.profile_update,
+        ],
+        ts: Math.floor(Date.now() / 1000),
+      },
+      meta: {
+      },
+    };
+    ctx.request.app_sub = account.subject;
+    return provider.interactionFinished(ctx.req, ctx.res, result, {
+      mergeWithLastSubmission: false,
+    });
+  });
+
+  router.post('/interaction/:uid/wagmi', body, async (ctx) => {
+    const { uid, params } = await provider.interactionDetails(ctx.req, ctx.res);
+    ctx.request.app_client = params.client_id;
+    let error = null;
+    let accountProof = null;
+    if (ctx.request.body.wagmi && ctx.request.body.sigmi) {
+      try {
+        const address = verifyMessage(ctx.request.body.wagmi, ctx.request.body.sigmi);
+        accountProof = JSON.parse(ctx.request.body.wagmi);
+        if (accountProof.address !== address || ctx.cookies.get('nonrf') !== accountProof.nonce || (Date.now() > accountProof.exp)) {
+          ctx.log.error({ accountProof, nonce: ctx.cookies.get('nonrf') }, "[Wagmi:verification]");
+          error = ctx.errors.getError('016');
+        }
+      } catch (err) {
+        ctx.log.error({ err }, '[Wagmi registration]')
+        error = ctx.errors.getError('017');
+      }
+    }
+    if (error !== null || accountProof === null) {
+      ctx.type = 'html';
+      ctx.status = 400;
+      const csrf = nanoid(14);
+      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
+      ctx.body = loginTmpl.stream({
+        html: ctx.state.html,
+        title: ctx.state.t('loginFlow.title'),
+        csrf,
+        uid,
+        error,
+      });
+      return;
+    }
+    const account = await Account.findOrCreateWagmi(ctx, accountProof.address, accountProof.chainID);
+    if (account.suspended === true) {
+      ctx.type = 'html';
+      ctx.status = 400;
+      const csrf = nanoid(14);
+      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
+      ctx.body = loginTmpl.stream({
+        html: ctx.state.html,
+        title: ctx.state.t('loginFlow.title'),
+        csrf,
+        uid,
+        error,
+      });
+      return;
+    }
+    const result = {
+      login: {
+        accountId: account.subject,
+        acr: 'urn:mace:incommon:iap:bronze',
+        amr: [
+          `wagmi:${accountProof.chainID}:${account.address}`,
           account.mfa_type,
           account.profile_location,
           account.profile_update,
