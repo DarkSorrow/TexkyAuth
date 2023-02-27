@@ -105,8 +105,8 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
     respTime: Date.now() - start,
     status: ctx.response.status,
     // Only for test purpose in hackathon
-    body: ctx.request.body,
-    query: ctx.request.query,
+    //body: ctx.request.body,
+    //query: ctx.request.query,
   }, '');
 });
 

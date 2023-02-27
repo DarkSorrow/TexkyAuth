@@ -12,7 +12,7 @@ services:
       - './auth:/app'
       - /app/node_modules
     environment:
- #     DEBUG: '*'
+      DEBUG: 'oidc-provider:*'
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: 1000
       REDIS_HOST: "redis"

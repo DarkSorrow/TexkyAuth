@@ -4,6 +4,7 @@ import { koaBody } from 'koa-body';
 import { strict as assert } from 'node:assert';
 import marko from "marko";
 import { nanoid } from 'nanoid';
+import { AppUtils } from "@onflow/fcl";
 
 import Account from '../../services/account.js';
 import { sessionCheckMiddleware } from '../error/index.js';
@@ -69,6 +70,16 @@ const registerValidator = (body) => {
 
   return (validation);
 }
+
+const getAccountProof = (proof) => {
+  for (let i = 0; i < proof.services.length; i++) {
+    if (proof.services[i].type === "account-proof") {
+      return proof.services[i].data;
+    }
+  }
+  return null;
+}
+
 export default (provider) => {
   
   const router = new Router();
@@ -271,6 +282,72 @@ export default (provider) => {
       });
       return;
     }
+  });
+
+  router.post('/interaction/:uid/flow', body, async (ctx) => {
+    const { uid, params } = await provider.interactionDetails(ctx.req, ctx.res);
+    ctx.request.app_client = params.client_id;
+    let error = null;
+    if (ctx.request.body.fcl) {
+      try {
+        const proof = JSON.parse(ctx.request.body.fcl);
+        const accountProof = getAccountProof(proof);
+        ctx.log.error({ proof, nonce: ctx.cookies.get('nonrf') }, "before");
+        if (accountProof/* && ctx.cookies.get('nonrf') === accountProof.nonce*/) {
+          ctx.log.error({ accountProof }, "AccountProof verifyAccountProof");
+          const isValid = await AppUtils.verifyAccountProof(
+            'flowpenID',
+            {
+              address: accountProof.address,
+              nonce: accountProof.nonce,
+              signatures: accountProof.signatures,
+            },
+          )
+          ctx.log.error({ accountProof, isValid }, "AccountProof ********");
+          if (!isValid) {
+            error = ctx.errors.getError('004');
+          }  
+        }
+      } catch (err) {
+        ctx.log.error({ err }, '[Flow registration]')
+        error = ctx.errors.getError('001');
+      }
+    }
+    error = true;
+    if (error !== null) {
+      ctx.type = 'html';
+      ctx.status = 400;
+      ctx.body = loginTmpl.stream({
+        html: ctx.state.html,
+        title: ctx.state.t('loginFlow.title'),
+        csrf: nanoid(14),
+        uid,
+        error,
+      });
+      return;
+    }
+    // debug purpose, remove later no tracking needed :D
+    Account.updateLastLogin(ctx, account.email);
+
+    const result = {
+      login: {
+        accountId: account.subject,
+        acr: 'urn:mace:incommon:iap:bronze',
+        amr: [
+          'pwd',
+          account.mfa_type,
+          account.profile_location,
+          account.profile_update,
+        ],
+        ts: Math.floor(Date.now() / 1000),
+      },
+      meta: {
+      },
+    };
+    ctx.request.app_sub = account.subject;
+    return provider.interactionFinished(ctx.req, ctx.res, result, {
+      mergeWithLastSubmission: false,
+    });
   });
 
   router.post('/interaction/:uid/federated', body, async (ctx) => {

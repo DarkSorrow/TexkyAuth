@@ -2,6 +2,7 @@
 import Router from 'koa-router';
 import { koaBody } from 'koa-body';
 import { nanoid } from 'nanoid';
+import crypto from 'node:crypto';
 
 import constant from '../../configurations/constant.js';
 import passport from '../../services/passeport.js';
@@ -173,5 +174,15 @@ export default (provider) => {
       ctx.type = 'text';
       ctx.body = `${constant.issuer}/social/callback/apple/flowpenid\n${constant.issuer}/social/callback/apple/link\n`;
     });
+
+  router.patch('/social/.well-generated',
+    (ctx) => {
+      const nonce = crypto.randomBytes(32).toString('hex');
+      ctx.status = 200;
+      ctx.cookies.set('nonrf', nonce, { httpOnly: true, path: '/interaction' })
+      ctx.type = 'text';
+      ctx.body = nonce;
+    });
+
   return router;
 };

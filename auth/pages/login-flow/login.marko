@@ -58,9 +58,11 @@ style {
     }
   }
 
+  .flex-container {
+    display: flex;
+  }
   .socialLink {
-    width: '100%';
-    margin-bottom: 1rem;
+    flex: 0.5;
   }
 
   .facebook {
@@ -108,6 +110,7 @@ style {
           <p>${input.error.message}</p>
         </if>
         <app-sign uid=`${input.uid}` register=input.register/>
+        <app-flow uid=`${input.uid}` />
         <hr />
         <div class="grid">
           <a href=`/social/login/facebook/flowpenid/${input.uid}` class="socialLink facebook" role="button"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Login with facebook</a>

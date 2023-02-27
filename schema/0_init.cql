@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS account.login_social (
     PRIMARY KEY (provider_subject, provider_client_id, email)
 );
 
-CREATE TABLE IF NOT EXISTS account.chain_id (
+CREATE TABLE IF NOT EXISTS account.login_chain_id (
     chain_id int,
     address text,
     chain_name text,
@@ -50,6 +50,18 @@ CREATE TABLE IF NOT EXISTS account.chain_id (
     updated_at timestamp,
     last_login timestamp,
     PRIMARY KEY (chain_id, address)
+);
+
+CREATE TABLE IF NOT EXISTS account.login_flow (
+    address text,
+    chain_name text,
+    subject timeuuid,
+    suspended boolean,
+    provider_data_json text,
+    created_at timestamp,
+    updated_at timestamp,
+    last_login timestamp,
+    PRIMARY KEY (address)
 );
 
 CREATE TABLE IF NOT EXISTS account.application ( 

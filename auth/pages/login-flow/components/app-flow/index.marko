@@ -1,0 +1,44 @@
+class {
+  onCreate() {
+    this.state = {
+      count: 0
+    }//${input.consent_flow} ${input.flow_custody}
+  }
+  onMount() {
+    console.log("Mounted in the browser!");
+    document.getElementById("flow-form").addEventListener("submit", function(event){
+      event.preventDefault();
+      fetch('/social/.well-generated', {
+        method: 'PATCH',
+      }).then((res) => {
+        res.text().then((val) => {
+          console.log('nonce', val)
+          window.fclConnect.config().put(
+            "fcl.accountProof.resolver", () => ({
+              appIdentifier: 'flowpenID',
+              nonce: val,
+            })
+          );
+          window.fclConnect.authenticate().then((proof) => {
+            document.getElementById('fcl').value = JSON.stringify(proof);
+            document.forms["flow-form"].submit();
+          }).catch((err) => {
+            console.log('fcl:', err);
+          });
+        }).catch((err) => {
+          console.log('text:', err);
+        });
+      }).catch((err) => {
+        console.log('fetch:', err);
+      });
+    });
+  }
+  increment() {
+    
+  }
+}
+
+<form autocomplete="off" name="flow-form" id="flow-form" action=`/interaction/${input.uid}/flow` method="post">
+  <input type="hidden" name="fcl" id="fcl" value="xd241q">
+  <button type="submit">Login with flow</button>
+</form>
