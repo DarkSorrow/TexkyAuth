@@ -43,10 +43,10 @@ const formatCassandraApplication = (id, payload, allow = false) => {
   }
   let consent_flow = parseInt(payload.consent_flow, 10);
   let flow_custody = parseInt(payload.flow_custody, 10);
-  if (consent_flow === NaN) {
+  if (isNaN(consent_flow)) {
     consent_flow = 0;
   }
-  if (flow_custody === NaN) {
+  if (isNaN(flow_custody)) {
     flow_custody = 0;
   }
   return ([
