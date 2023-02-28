@@ -48,7 +48,7 @@ router.get('/api/applications', verify_token, async (ctx) => {
   }
   try {
     const result = await ctx.cassandra.cql.execute(
-      'SELECT (client_id, suspended, application_type, logo_uri, client_name, client_application_type, consent_flow, flow_custody, flow_account_creation, updated_at) FROM account.legal_application WHERE legal_id = ?;',
+      'SELECT client_id, suspended, application_type, logo_uri, client_name, client_application_type, consent_flow, flow_custody, flow_account_creation, updated_at FROM account.legal_application WHERE legal_id = ?;',
       [ctx.state.legal], options,
     );
     let pageID = null;
