@@ -153,7 +153,7 @@ router.post('/api/application', body, verify_token, async (ctx) => {
     // insert
     ctx.request.body.legal_id = ctx.state.legal;
     ctx.request.body.client_secret = nanoid();
-    await clientApplication.upsertClient(nanoid(12), ctx.request.body);
+    await clientApplication.upsertClient(nanoid(), ctx.request.body);
     ctx.body = {
       status: 1,
       data: true,
