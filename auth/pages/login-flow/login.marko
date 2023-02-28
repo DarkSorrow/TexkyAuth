@@ -6,7 +6,7 @@ style {
     flex-direction: column;
     justify-content: center;
     min-height: calc(100vh - 7rem);
-    padding: 1rem 0;
+    padding: 0;
   }
 
   article {
@@ -31,6 +31,7 @@ style {
   @media (min-width: 768px) {
     body > main {
       padding: 1.5rem 0;
+      flex-direction: column;
     }
 
     article div {
@@ -41,6 +42,7 @@ style {
   @media (min-width: 992px) {
     body > main {
       padding: 1.75rem 0;
+      flex-direction: column;
     }
 
     article div {
@@ -62,7 +64,9 @@ style {
     display: flex;
   }
   .socialLink {
-    flex: 0.5;
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 0.5rem;
   }
 
   .facebook {
@@ -83,43 +87,33 @@ style {
     color: var(--secondary-hover);
   }
 
-  /* Hero Image */
-  article div:nth-of-type(2) {
-    display: none;
-    background-color: #374956;
-    /*background-image: url("assets/alessio-soggetti-8jeWeKdygfk-unsplash-1000x1200.jpg");*/
-    background-position: center;
-    background-size: cover;
-  }
-
-  @media (min-width: 992px) {
-    .grid > div:nth-of-type(2) {
-      display: block;
-    }
-  }
 }
 
 <app-layout lang=`${input.html.lang}` dir=`${input.html.dir}` title=`${input.title}`>
   <app-header/>
 
   <!-- Main -->
-  <main class="container">
+  <main class="container-fluid">
     <article class="grid">
       <div>
         <if(input.error?.message)>
           <p>${input.error.message}</p>
         </if>
         <app-sign uid=`${input.uid}` register=input.register/>
+        <hr />
+        <a href=`/social/login/facebook/flowpenid/${input.uid}` class="socialLink facebook" role="button"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Login with facebook</a>
+        <a href=`/social/login/google/flowpenid/${input.uid}` class="socialLink google" role="button"><i class="fa-brands fa-google" aria-hidden="true"></i> Login with google</a>
+        <a href=`/social/login/apple/flowpenid/${input.uid}` class="socialLink apple" role="button"><i class="fa-brands fa-apple" aria-hidden="true"></i> Login with apple</a>
+      </div>
+      <div>
+        <hgroup>
+          <h1>Web3</h1>
+          <h2>Use one of your wallet!</h2>
+        </hgroup>
         <app-flow uid=`${input.uid}` />
         <app-wagmi uid=`${input.uid}` />
-        <hr />
-        <div class="grid">
-          <a href=`/social/login/facebook/flowpenid/${input.uid}` class="socialLink facebook" role="button"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Login with facebook</a>
-          <a href=`/social/login/google/flowpenid/${input.uid}` class="socialLink google" role="button"><i class="fa-brands fa-google" aria-hidden="true"></i> Login with google</a>
-          <a href=`/social/login/apple/flowpenid/${input.uid}` class="socialLink apple" role="button"><i class="fa-brands fa-apple" aria-hidden="true"></i> Login with apple</a>
-        </div>
+        <lasso-img src="./block.png" height=200 />
       </div>
-      <div></div>
     </article>
   </main><!-- ./ Main -->
 </app-layout>
