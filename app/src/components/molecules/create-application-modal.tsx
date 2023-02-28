@@ -14,9 +14,11 @@ export type CreateApplicationModalRef = {
     setIsOpen: (value: boolean) => void;
 }
 
-type EmptyProps = {};
+type ModalProps = {
+  callback?: (...data: any) => any;
+};
 
-const CreateApplicationModalComponent = (_: EmptyProps, ref: ForwardedRef<CreateApplicationModalRef>) => {
+const CreateApplicationModalComponent = ({callback}: ModalProps, ref: ForwardedRef<CreateApplicationModalRef>) => {
     const [isOpen, setIsOpen] = useState(false);
     const { userToken } = useAuth();
 
@@ -44,7 +46,7 @@ const CreateApplicationModalComponent = (_: EmptyProps, ref: ForwardedRef<Create
             data: { client_name: dialogValue.name },
             headers: { Authorization: `Bearer ${userToken}` }
         })
-
+        callback && callback();
         } catch (err)  {
           console.log(err);
         }

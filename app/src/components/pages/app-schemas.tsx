@@ -105,7 +105,7 @@ const deleteApplications = async () => {
           experimentalFeatures={{ newEditingApi: true }}
         />
       </Box>
-      <CreateApplicationModal ref={createModalRef} />
+      <CreateApplicationModal callback={fetchApplications} ref={createModalRef} />
       <DeleteButton text='Delete selected applications' onDelete={deleteApplications} />
     </>
     </>
