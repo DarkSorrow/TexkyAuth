@@ -185,3 +185,18 @@ CREATE TABLE IF NOT EXISTS account.subject_groups (
     groups set<text>,
     PRIMARY KEY (subject, legal_id)
 );
+
+// writing in {private|public}:{category}
+CREATE TABLE IF NOT EXISTS account.legal_flow_templates (
+	section tinyint,
+    legal_id timeuuid,
+	auditors set<text>,
+    id text,
+    PRIMARY KEY (section, legal_id, id)
+);
+
+CREATE TABLE IF NOT EXISTS account.flow_templates (
+    id text,
+    cadence text,
+    PRIMARY KEY (id, legal_id)
+);
