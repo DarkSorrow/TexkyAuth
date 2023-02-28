@@ -198,5 +198,5 @@ CREATE TABLE IF NOT EXISTS account.legal_flow_templates (
 CREATE TABLE IF NOT EXISTS account.flow_templates (
     id text,
     cadence text,
-    PRIMARY KEY (id, legal_id)
+    PRIMARY KEY (id)
 );
