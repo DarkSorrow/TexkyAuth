@@ -1,4 +1,6 @@
-import ChildAccount from 0xf8d6e0586b0a20c7
+export default template = 
+`
+import ChildAccount from {{MasterAdress}}
 
 transaction(pubKey: String, fundingAmt: UFix64,, childAccountName: String, childAccountMailAdress: String, childAccountEMail: String, childAccountAge: UInt64) {
     prepare(signer: AuthAccount) {
@@ -13,4 +15,4 @@ transaction(pubKey: String, fundingAmt: UFix64,, childAccountName: String, child
         let newAccount = managerRef.createChildAccount(signer: signer, initialFundingAmount: fundingAmt, childAccountInfo: info, authAccountCapPath: ChildAccount.AuthAccountCapabilityPath)
     }
 }
- 
+`

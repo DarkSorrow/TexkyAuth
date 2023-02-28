@@ -1,4 +1,6 @@
-import ChildAccount from 0xf8d6e0586b0a20c7
+export default template = 
+`
+import ChildAccount from {{MasterAdress}}
 
 transaction(fundingChildAddress: Address) {
     prepare(parent: AuthAccount, grownUpLimite: UInt64) {
@@ -12,4 +14,4 @@ transaction(fundingChildAddress: Address) {
         log(tagRef.isGrownUp(grownUpLimite: grownUpLimite))
     }
 }
- 
+`
