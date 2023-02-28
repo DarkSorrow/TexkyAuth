@@ -1,3 +1,32 @@
+class {
+  changeTheme(theme, event) {
+    document.querySelector('html').setAttribute('data-theme', theme);
+  }
+  changeLanguage(lang, event) {
+    event.preventDefault()
+    var kvp = document.location.search.substr(1).split('&');
+    let i=0;
+
+    for(; i<kvp.length; i++){
+        if (kvp[i].startsWith('lng=')) {
+            let pair = kvp[i].split('=');
+            pair[1] = lang;
+            kvp[i] = pair.join('=');
+            break;
+        }
+    }
+
+    if(i >= kvp.length){
+        kvp[kvp.length] = ['lng',lang].join('=');
+    }
+
+    // can return this or...
+    let params = kvp.join('&');
+
+    // reload page with new params
+    document.location.search = params;
+  }
+}
 <nav class="container-fluid">
   <ul>
     <li><strong>Texky</strong></li>
@@ -7,9 +36,9 @@
       <details role="list">
         <summary aria-haspopup="listbox" role="link" class="secondary">Language</summary>
         <ul role="listbox">
-          <li><a href="#">Preview</a></li>
-          <li><a href="#">Right-to-left</a></li>
-          <li><a href="#">Class-less</a></li>
+          <li><button on-click('changeLanguage', 'en') class="outline">English</button></li>
+          <li><button on-click('changeLanguage', 'fr') class="outline">Français</button></li>
+          <li><button on-click('changeLanguage', 'ar') class="outline">عربي</button></li>
         </ul>
       </details>
     </li>
@@ -17,9 +46,8 @@
       <details role="list">
         <summary aria-haspopup="listbox" role="link" class="secondary">Theme</summary>
         <ul role="listbox">
-          <li><a href="#" data-theme-switcher="auto">Auto</a></li>
-          <li><a href="#" data-theme-switcher="light">Light</a></li>
-          <li><a href="#" data-theme-switcher="dark">Dark</a></li>
+          <li><button on-click('changeTheme', 'light') class="outline" data-theme-switcher="light">Light</button></li>
+          <li><button on-click('changeTheme', 'dark') class="outline" data-theme-switcher="dark">Dark</button></li>
         </ul>
       </details>
     </li>

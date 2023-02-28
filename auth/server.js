@@ -112,8 +112,6 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
 
 if (constant.isProduction) {
   provider.proxy = true;
-  set(configuration, 'cookies.short.secure', true);
-  set(configuration, 'cookies.long.secure', true);
 
   provider.use(async (ctx, next) => {
     if (ctx.secure) {
