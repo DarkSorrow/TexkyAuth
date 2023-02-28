@@ -20,8 +20,6 @@ export const AppWalletConnect = () => {
 
   const connectWallet = async () => {
     const res = await fcl.authenticate();
-    console.log(res);
-
   }
 
   useEffect(() => {

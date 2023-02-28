@@ -1,5 +1,5 @@
-import {Axios} from 'axios';
-import { useEffect, useState } from "react";
+import axios, { Axios, AxiosResponse } from 'axios';
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DeleteButton } from "../atoms/delete-button";
 import SendIcon from '@mui/icons-material/Send';
 
@@ -8,7 +8,7 @@ import { PrimaryButton } from "../atoms/primary-button";
 import { ApplicationList } from "../molecules/application-list";
 import { NoData } from "../molecules/no-data";
 import { useAuth } from '../../providers/auth';
-
+import * as fcl from "@onflow/fcl";
 
 
 export interface Application {
@@ -32,37 +32,57 @@ export interface DataApplication {
 export const AppProfilePage = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const { userToken } = useAuth();
+  const [user, setUser] = useState<FlowUser>();
 
-  const client = new Axios({
+  useEffect(() => fcl.currentUser.subscribe(setUser), []); 
+  
+
+  const client = useMemo(() => new Axios({
     baseURL: 'http://localhost:8080',
     headers: {
       Authorization: `Bearer ${userToken}`
     },
     transformResponse: (data) => JSON.parse(data),
-    });
+    }), [userToken]);
 
   const onDelete = () => {
     console.log("deletion");
     return true;
   }
 
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     const { data: { data } } = await client.get<DataApplication>('/api/profile/applications', {
       data: {
         legal_id: '9e15c371-b5c3-11ed-858c-650c3fb1e72a'
       }
     });
     setApplications(data.map(el => ({...el, id: el.client_id, detail_json: JSON.parse(el.detail_json) })));
-  }
+  }, [client])
   
-  const onTransfer = () => {
-    alert('custody transfer in progress');
-    return true;
-  }
+  const onTransfer = useCallback(async () => {
+    const promises: Promise<AxiosResponse>[] = [];
+
+    try {
+      applications.forEach((appClientId) => {
+        promises.push(axios({
+          url : 'http://localhost:8080/api/flow/child/move',
+          method: 'post',
+          data: { destAddress: user?.addr, client_id: appClientId },
+          headers: { Authorization: `Bearer ${userToken}` }
+        }))
+      })
+  
+      await Promise.all(promises);
+  
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }, [applications, user?.addr, userToken])
 
   useEffect(() => {
     fetchAccounts();
-  }, [])
+  }, [fetchAccounts])
 
   return <>
     <Container>
@@ -76,7 +96,7 @@ export const AppProfilePage = () => {
       <h3>List of your actions:</h3> 
       <Grid container spacing={2}>
         <Grid item>
-          <PrimaryButton text="Take over all Accounts" startIcon={<SendIcon />} onClick={onTransfer} />
+          <PrimaryButton disabled={!user?.loggedIn} text="Take over all Accounts" startIcon={<SendIcon />} onClick={onTransfer} />
         </Grid>
         <Grid item>
           <DeleteButton text="Delete Account" onDelete={onDelete} />

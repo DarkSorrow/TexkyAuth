@@ -3,28 +3,44 @@ import { DataGrid, GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { PrimaryButton } from '../atoms/primary-button';
 import { Application } from '../pages/app-profile';
 import SendIcon from '@mui/icons-material/Send';
-import { useCallback, useState } from 'react';
-import { Axios } from 'axios';
+import { useCallback, useEffect, useState } from 'react';
+import axios, { AxiosResponse } from 'axios';
+import { useAuth } from '../../providers/auth';
+import * as fcl from "@onflow/fcl";
 
 
 type ApplicationListProps = {
     applications: Application[]
 }
 
-const client = new Axios({
-  baseURL: 'http://localhost:8080'
-})
-
 export const ApplicationList = ({applications}: ApplicationListProps) => {
   const [selected, setSelected] = useState<GridSelectionModel>([]);
+  const { userToken } = useAuth();
+  const [user, setUser] = useState<FlowUser>();
+
+  useEffect(() => fcl.currentUser.subscribe(setUser), []); 
   
-  const onTransfer = useCallback(() => {
-    client.post('/api/flow/my/applications', {
-      
-    })
-    console.log(selected)
-    return true;
-  }, [selected])
+  const onTransfer = useCallback(async () => {
+    const promises: Promise<AxiosResponse>[] = [];
+
+    try {
+      selected.forEach((appClientId) => {
+        promises.push(axios({
+          url : 'http://localhost:8080/api/flow/child/move',
+          method: 'post',
+          data: { destAddress: user?.addr, client_id: appClientId },
+          headers: { Authorization: `Bearer ${userToken}` }
+        }))
+      })
+  
+      await Promise.all(promises);
+  
+      return true;
+    } catch (e) {
+      return false;
+    }
+
+  }, [selected, user?.addr, userToken])
 
     const columns: GridColDef[] = [
         { field: 'client_id', headerName: 'ClientID', width: 300 },
@@ -64,7 +80,7 @@ export const ApplicationList = ({applications}: ApplicationListProps) => {
         experimentalFeatures={{ newEditingApi: true }}
       />
     </Box>
-    <PrimaryButton text="Take over selected" startIcon={<SendIcon />} onClick={onTransfer} />
+    <PrimaryButton disabled={!user?.loggedIn || selected.length === 0} text="Take over selected" startIcon={<SendIcon />} onClick={onTransfer} />
 
     </>
 }
