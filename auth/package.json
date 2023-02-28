@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "browser-refresh --enable-source-maps -r @babel/register -r @marko/compiler/register server.js | pino-pretty",
-    "start": "node -r @babel/register -r @marko/compiler/register server.js",
+    "start": "node --inspect -r @babel/register -r @marko/compiler/register server.js ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

@@ -109,3 +109,5 @@ auth/static
 
 #cassandra data
 db-data/cassandra
+
+.vscode

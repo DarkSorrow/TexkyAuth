@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 
 type DeleteButtonProps = {
     text: string;
-    onDelete: () => boolean;
+    onDelete: () => Promise<boolean>;
 }
 
 export const DeleteButton = ({ text, onDelete }: DeleteButtonProps) => {

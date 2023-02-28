@@ -47,7 +47,7 @@ export const AppProfilePage = () => {
 
   const onDelete = () => {
     console.log("deletion");
-    return true;
+    return new Promise<boolean>(() => true);
   }
 
   const fetchAccounts = useCallback(async () => {
