@@ -163,6 +163,20 @@ export default (provider) => {
     });
   });
 
+  router.get('/test/login', async (ctx) => {
+    const client = await provider.Client.find('ABCgWwsfyRQ0XRAE');
+    console.log(client)
+    ctx.request.app_client = client.clientId;
+    //The key is set in the route/social.js. The reason being that passport works with redirections
+    ctx.type = "html";
+    ctx.body = loginTmpl.stream({
+      html: ctx.state.html,
+      csrf: nanoid(12),
+      title: ctx.state.t('loginFlow.title'),
+      uid: 'tresqfd',
+    });
+  });
+
   router.get('/interaction/callback/google', (ctx) => {
     const nonce = ctx.res.locals.cspNonce;
     ctx.body = repostTmpl.stream({
