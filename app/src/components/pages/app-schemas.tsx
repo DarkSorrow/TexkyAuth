@@ -96,15 +96,15 @@ const deleteApplications = async () => {
       <>
         <Box sx={{ height: 400, width: '100%' }}>
           <DataGrid
-          rows={applications}
-          onSelectionModelChange={(newSelectionModel) => setSelected(newSelectionModel)}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          checkboxSelection
-          disableSelectionOnClick
-          experimentalFeatures={{ newEditingApi: true }}
-        />
+            rows={applications}
+            onSelectionModelChange={(newSelectionModel) => setSelected(newSelectionModel)}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            checkboxSelection
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+          />
       </Box>
       <CreateApplicationModal callback={fetchApplications} ref={createModalRef} />
       <DeleteButton text='Delete selected applications' onDelete={deleteApplications} />

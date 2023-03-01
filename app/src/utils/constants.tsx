@@ -3,7 +3,7 @@ export const STORAGE_TOKEN = "texky";
 export const PREF_TOKEN = "tpref";
 export const STORAGE_CCHALLENGE = "_ccoidc";
 
-export const BASE_URL = 'https://admin.texky.com/';
+export const BASE_API = window._TEXKY_.BASE_API || 'http://localhost:8080/api';
 export const CLIENT_ID = window._TEXKY_.CLIENT_ID || 'hTs2VY4FOHhmXW77';
 export const OIDC_URL = window._TEXKY_.OIDC_URL || 'http://localhost:8080';
 //export const IDP_URL ='http://lp5-has2-dsy.dsone.3ds.com:91'
@@ -11,10 +11,10 @@ export const LOGOUT_URL = window._TEXKY_.LOGOUT_URL || 'http://localhost:3000/co
 export const REDIRECT_URL = window._TEXKY_.REDIRECT_URL || 'http://localhost:3000/connect/login';
 export const REDIRECT_SIGNUP_URL = REDIRECT_URL.replace('/login', '/signup');
 
-export const APPLICATIONS_BASE_URL = 'http://localhost:8080/api/application'
-export const FETCH_APPLICATIONS_URL = 'http://localhost:8080/api/applications'
-export const FETCH_PROFILE_APPLICATIONS = 'http://localhost:8080/api/profile/applications';
-export const MOVE_CUSTODY_APPLICATIONS_URL = 'http://localhost:8080/api/flow/child/move';
+export const APPLICATIONS_BASE_URL = 'https://auth.texky.com/api/application'
+export const FETCH_APPLICATIONS_URL = 'https://auth.texky.com/api/applications'
+export const FETCH_PROFILE_APPLICATIONS = 'https://auth.texky.com/api/profile/applications';
+export const MOVE_CUSTODY_APPLICATIONS_URL = 'https://auth.texky.com/api/flow/child/move';
 
 
 export const DRAWER_WIDTH = 240;

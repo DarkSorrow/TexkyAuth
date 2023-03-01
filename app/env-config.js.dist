@@ -1,6 +1,7 @@
 window._TEXKY_ = {
   CLIENT_ID: "${CLIENT_ID}",
   OIDC_URL: "${OIDC_URL}",
+  BASE_API: "${BASE_API}",
   LOGOUT_URL: "${LOGOUT_URL}",
   REDIRECT_URL: "${REDIRECT_URL}",
 }

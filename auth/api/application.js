@@ -108,7 +108,7 @@ router.get('/api/application/:clientID/subjects', verify_token, async (ctx) => {
     }
   }
   const legalApp = await clientApplication.checkClient(ctx.request.params.clientID);
-  if (legalApp.equals(ctx.state.legal)) {
+  if (ctx.state.legal.equals(legalApp)) {
     ctx.request.body.legal_id = ctx.state.legal;
     const result = await ctx.cassandra.cql.execute(
       'SELECT subject,consent,detail_json,updated_at,created_at FROM account.consent_application WHERE client_id = ?;',
@@ -137,7 +137,7 @@ router.post('/api/application', body, verify_token, async (ctx) => {
   if (ctx.request.body.client_id) {
     // update
     const legalApp = await clientApplication.checkClient(ctx.request.body.client_id);
-    if (legalApp.equals(ctx.state.legal)) {
+    if (ctx.state.legal.equals(legalApp)) {
       ctx.request.body.legal_id = ctx.state.legal;
       await clientApplication.upsertClient(ctx.request.body.client_id, ctx.request.body);
       ctx.body = {
@@ -170,7 +170,7 @@ router.post('/api/application', body, verify_token, async (ctx) => {
 router.post('/api/application/:clientID/reset', verify_token, async (ctx) => {
   // ctx.request.params.clientID
   const legalApp = await clientApplication.checkClient(ctx.request.params.clientID);
-  if (legalApp.equals(ctx.state.legal)) {
+  if (ctx.state.legal.equals(legalApp)) {
     ctx.body.legal_id = ctx.state.legal;
     // clientApplication.upsertClient(ctx.request.params.clientID, ctx.body);
   }
@@ -183,8 +183,8 @@ router.delete('/api/application/:clientID', verify_token, async (ctx) => {
   if (ctx.request.params.clientID) {
     // update
     const legalApp = await clientApplication.checkClient(ctx.request.params.clientID);
-    if (legalApp.equals(ctx.state.legal)) {
-      await clientApplication.deleteClient(ctx.request.params.clientID);
+    if (ctx.state.legal.equals(legalApp)) {
+      await clientApplication.deleteClient(ctx.request.params.clientID, ctx.state.legal);
       ctx.body = {
         status: 1,
         data: true,

@@ -7,10 +7,12 @@ import { AppNavigation } from '../organisms/app-navigation';
 import { AppTemplate } from '../templates/app';
 import { ErrorNotFoundPage } from './error-not-found';
 import { AppHomePage } from './app-home';
-import { AppSchemasPage } from './app-schemas';
+// import { AppSchemasPage } from './app-schemas';
+import { AppEditApplicationPage } from './app-edit-application';
+import { AppApplicationsPage } from './app-applications';
 import { AppMarketPage } from './app-market';
 import { AppProfilePage } from './app-profile';
-import { AppEditSchemaPage } from './app-edit-schemas';
+//import { AppEditSchemaPage } from './app-edit-schemas';
 import { CommonFormPage } from './common-form';
 
 
@@ -29,10 +31,10 @@ const AppPage = () => {
           }>
           <Route index element={<AppHomePage />} />
           <Route path="dashboard/*" element={<AppHomePage />} />
-          <Route path="schemas/*" element={<AppSchemasPage />} />
+          <Route path="applications/*" element={<AppApplicationsPage />} />
           <Route path="/connect/logout" element={<CallbackLogout />} />
           <Route path="forms/:company/:topic/:subject/:version" element={<CommonFormPage />} />
-          <Route path="schemas/topic/:topic/:subject" element={<AppEditSchemaPage />} />
+          <Route path="edit/application/:clientID" element={<AppEditApplicationPage />} />
           <Route path="market" element={<AppMarketPage />} />
           <Route path="profile" element={<AppProfilePage />} />
           <Route

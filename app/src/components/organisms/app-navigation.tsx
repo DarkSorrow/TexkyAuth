@@ -50,8 +50,8 @@ export const AppNavigation = () => {
           />
           <AppNavLink 
             icon={<SchemaIcon fontSize="small" />}
-            text={t<string>('schema')}
-            href="/schemas"
+            text={t<string>('applications')}
+            href="/applications"
           />
           <AppNavLink 
             icon={<StoreIcon fontSize="small" />}

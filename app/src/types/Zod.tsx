@@ -31,7 +31,13 @@ export const TemplateSchema = object({
   format:     string(),
 });
 
+export const AppliationSchema = object({
+  client_id:      string().optional(),
+  client_name:      string(),
+});
+
 export type IFormAddress = TypeOf<typeof AddressSchema>;
 export type IFormSignup = TypeOf<typeof SignUpSchema>;
 export type IFormSignin = TypeOf<typeof SignInSchema>;
 export type IFormTemplate = TypeOf<typeof TemplateSchema>;
+export type IFormAppliation = TypeOf<typeof AppliationSchema>;

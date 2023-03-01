@@ -157,7 +157,7 @@ class ClientApplication {
   // testtest1234
   async getClient(id) {
     const application = await cql.execute(
-      'SELECT client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts,legal_id FROM account.application WHERE client_id = ?;',
+      'SELECT client_id,client_secret,suspended,software_id,application_type,logo_uri,subject_type,client_name,client_uri,policy_uri,tos_uri,updated_at,contacts,client_application_type,sector_identifier_uri,response_types,redirect_uris,grant_types,default_acr,post_logout_redirect_uris,notif_params_json,cors_allowed,consent_flow,flow_custody,flow_account_creation,flow_contracts,legal_id FROM account.application WHERE client_id = ? IF NOT EXIST;',
       [id],
       { prepare: true },
     );
@@ -167,11 +167,14 @@ class ClientApplication {
     }
     return null;
   }
-  async deleteClient(id) {
-    await cql.execute(
+  async deleteClient(id, legal_id) {
+    await Promise.all([cql.execute(
       'DELETE FROM account.application WHERE client_id = ?;',
       [id], { prepare: true },
-    );
+    ),cql.execute(
+      'DELETE FROM account.legal_application WHERE legal_id = ? AND client_id = ?;',
+      [legal_id, id], { prepare: true },
+    )]);
     return null;
   }
 

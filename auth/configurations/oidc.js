@@ -32,9 +32,9 @@ const configuration = {
     client_name: 'Admin flowpenid',
     logo_uri: 'https://novastera.texky.com/texky-192.png',
     application_type: "native",
-    cors_origins: ['http://localhost:4000', 'http://localhost:3000'], // no trailing slash authorized
-    redirect_uris: ['http://localhost:4000/authentified', 'http://localhost:3000/connect/login'],
-    post_logout_redirect_uris: ['http://localhost:3000/connect/logout'],
+    cors_origins: ['http://localhost:4000', 'http://localhost:3000', 'https://app.texky.com'], // no trailing slash authorized
+    redirect_uris: ['http://localhost:4000/authentified', 'http://localhost:3000/connect/login', 'https://app.texky.com/connect/login'],
+    post_logout_redirect_uris: ['http://localhost:3000/connect/logout', 'https://app.texky.com/connect/logout'],
     grant_types: ["refresh_token", "authorization_code"],
     token_endpoint_auth_method: 'none', // if application_type native -> mettre a none pour avoir juste le client_id
     consent_flow : 0, // 21

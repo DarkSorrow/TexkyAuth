@@ -55,3 +55,13 @@ export interface RequestArray<T> {
   data: T;
   options: NVRequestOption | null;
 }
+
+export interface DataLoad<T> {
+  loading: boolean;
+  data: Array<T>;
+}
+
+export interface EditDataLoad<T> {
+  loading: boolean;
+  data: T;
+}

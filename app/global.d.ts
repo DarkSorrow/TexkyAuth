@@ -68,5 +68,5 @@ interface Application {
     subject_type:              string;
     suspended:                 boolean;
     tos_uri:                   string;
-    updated_at:                Date;
+    updated_at?:                Date;
 }
