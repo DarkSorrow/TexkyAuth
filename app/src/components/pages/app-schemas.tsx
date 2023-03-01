@@ -6,6 +6,7 @@ import { CreateApplicationModal, CreateApplicationModalRef } from '../molecules/
 import axios from 'axios';
 import { useAuth } from '../../providers/auth';
 import { DeleteButton } from '../atoms/delete-button';
+import { APPLICATIONS_BASE_URL, FETCH_APPLICATIONS_URL } from '../../utils/constants';
 
 type ApplicationsData = {
   data: Application[]
@@ -19,7 +20,7 @@ export const AppSchemasPage = () => {
 
   const fetchApplications = async () => {
     const { data: { data: applicationData } } = await axios<ApplicationsData>({
-      url: 'http://localhost:8080/api/applications',
+      url: FETCH_APPLICATIONS_URL,
       method: 'GET',
       headers: {
         Authorization: `Bearer ${userToken}`
@@ -32,7 +33,7 @@ const deleteApplications = async () => {
   const promises: Promise<any>[] = []
   selected.forEach((clientId: any) => {
     promises.push(axios({
-        url: `http://localhost:8080/api/application/${clientId}`,
+        url: `${APPLICATIONS_BASE_URL}/${clientId}`,
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${userToken}`

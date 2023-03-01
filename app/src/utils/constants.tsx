@@ -11,6 +11,12 @@ export const LOGOUT_URL = window._TEXKY_.LOGOUT_URL || 'http://localhost:3000/co
 export const REDIRECT_URL = window._TEXKY_.REDIRECT_URL || 'http://localhost:3000/connect/login';
 export const REDIRECT_SIGNUP_URL = REDIRECT_URL.replace('/login', '/signup');
 
+export const APPLICATIONS_BASE_URL = 'http://localhost:8080/api/application'
+export const FETCH_APPLICATIONS_URL = 'http://localhost:8080/api/applications'
+export const FETCH_PROFILE_APPLICATIONS = 'http://localhost:8080/api/profile/applications';
+export const MOVE_CUSTODY_APPLICATIONS_URL = 'http://localhost:8080/api/flow/child/move';
+
+
 export const DRAWER_WIDTH = 240;
 
 export const DEFAULT_LANGUAGE = "en-GB";

@@ -9,6 +9,7 @@ import Typography from "@mui/joy/Typography"
 import axios from "axios"
 import { ForwardedRef, forwardRef, useImperativeHandle, useState } from "react";
 import { useAuth } from "../../providers/auth"
+import { APPLICATIONS_BASE_URL, FETCH_APPLICATIONS_URL } from "../../utils/constants"
 
 export type CreateApplicationModalRef = {
     setIsOpen: (value: boolean) => void;
@@ -41,7 +42,7 @@ const CreateApplicationModalComponent = ({callback}: ModalProps, ref: ForwardedR
 
         try {
         await axios({
-            url : 'http://localhost:8080/api/application',
+            url : APPLICATIONS_BASE_URL,
             method: 'post',
             data: { client_name: dialogValue.name },
             headers: { Authorization: `Bearer ${userToken}` }

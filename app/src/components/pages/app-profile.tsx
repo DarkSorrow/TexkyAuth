@@ -9,6 +9,7 @@ import { ApplicationList } from "../molecules/application-list";
 import { NoData } from "../molecules/no-data";
 import { useAuth } from '../../providers/auth';
 import * as fcl from "@onflow/fcl";
+import { FETCH_PROFILE_APPLICATIONS, MOVE_CUSTODY_APPLICATIONS_URL } from '../../utils/constants';
 
 
 export interface Application {
@@ -38,7 +39,6 @@ export const AppProfilePage = () => {
   
 
   const client = useMemo(() => new Axios({
-    baseURL: 'http://localhost:8080',
     headers: {
       Authorization: `Bearer ${userToken}`
     },
@@ -51,7 +51,7 @@ export const AppProfilePage = () => {
   }
 
   const fetchAccounts = useCallback(async () => {
-    const { data: { data } } = await client.get<DataApplication>('/api/profile/applications', {
+    const { data: { data } } = await client.get<DataApplication>(FETCH_PROFILE_APPLICATIONS, {
       data: {
         legal_id: '9e15c371-b5c3-11ed-858c-650c3fb1e72a'
       }
@@ -65,7 +65,7 @@ export const AppProfilePage = () => {
     try {
       applications.forEach((appClientId) => {
         promises.push(axios({
-          url : 'http://localhost:8080/api/flow/child/move',
+          url : MOVE_CUSTODY_APPLICATIONS_URL,
           method: 'post',
           data: { destAddress: user?.addr, client_id: appClientId },
           headers: { Authorization: `Bearer ${userToken}` }

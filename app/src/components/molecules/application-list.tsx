@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import { useAuth } from '../../providers/auth';
 import * as fcl from "@onflow/fcl";
+import { MOVE_CUSTODY_APPLICATIONS_URL } from '../../utils/constants';
 
 
 type ApplicationListProps = {
@@ -26,7 +27,7 @@ export const ApplicationList = ({applications}: ApplicationListProps) => {
     try {
       selected.forEach((appClientId) => {
         promises.push(axios({
-          url : 'http://localhost:8080/api/flow/child/move',
+          url : MOVE_CUSTODY_APPLICATIONS_URL,
           method: 'post',
           data: { destAddress: user?.addr, client_id: appClientId },
           headers: { Authorization: `Bearer ${userToken}` }
