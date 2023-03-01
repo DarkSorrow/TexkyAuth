@@ -20,7 +20,25 @@ chmod 777 db-data
 
 ## FlowpenID connect
 
-Today a lot of application rely on user informations without keeping track of how those data are stored and used. User usually have data scattered amoung different applications and account related information scattered in different applications / places / blockchains. The aim of this tool is to allow users to keep track of all the information that are scattered around and stay up to date with what is happening in a single interface while having full autonomy on owning their data.
+Today most identity provider focus on gathering, creating and handling users data in order to help application focus more on their core business. However core businesses often relies heavily on the data provided by the user and a certain amount of trust must be forged and created to make this relationship work. Most of the time however an identity provider will focus on guaranteeing the security of the data access to an application but the services around the data itself is left to the applications. Their use and share is often linked to various security considerations that is not often well understood specially with the emergence of new data privacy regulations.
+
+Aside privacy regulation another industry is emerging around technologies linked with blockchains that often aims at bringing transparency and ownership in a world that often lack of it. The transparent nature of this industry often created skepticism when it came to privacy as the notion of being private and transparent doesn't always goes hand in hand. But this is also evolving with work around zero knowledge proof and access control which brings us new way of handling data.
+
+Our goal project is to leverage existing proven solution and protocols when it comes to identity and private data management with the transparency and ownership required to handle them.
+
+Our project aim at using certified identity service provider based on the openid connect specification which is today recognize as one of the industry standard and trying to apply the flow concept of child account in order to achieve the required transparency, privacy but also true ownership of the data being handled.
+
+The openID connect specification allow different device to exchange data in a clear and explicit manner and is built on several specifications focused on security. Using a certified server and being able to actually obtain security certification is a first step to make sure the basis of our application is solid. Aside the openID certification the project aims at using zero trust concept and obtain certification from various organization the first being the iso 27001.
+
+In order to achieve transparency the use of the flow blockchain and the ability to audit contract but also have those contract being openly available to check should show users how their data is handled. And even if everyone knows that nobody read term of services and condition of use, the fact that the contract is code and is openly available will make more people read this and uncover bad usage from good one. The ability to upgrade and easily change contract here will help remain safe and secure.
+
+Privacy is another subject that we aim to address using technologies such as zero knowledge proof, though this can't cover all use case of data requirement for some application we think it's a great source of first contact when it comes to sharing private and sensitive data for a user. The ability to allow diverse application to make sure that the person have certain set of data without giving them access to can help companies understand their user a lot better and allow user to more easily share their data.
+
+The way user share their data is being more and more scrutinize and for good reasons. More users are becoming aware of the power their data hold but too often are not able to prevent the lost of ownership when they want to use an application. This is largely due to the fact that up to today a company was supposed to hold the data and in the end the trust had to be put in this company. The blockchain and technologies allowing sharing and handling of an account could solve this pain point and allow users to be completely free of this mind burden by choosing how and with who those data are shared
+
+All those technological tools being developed sometime for different purpose could help us build specific system that would empower users to choose how and where their data are being used. We do not plan on giving a standard based on our point of view but thanks to the nature of blockchains and also the way flow contract are created with the audit being built in we hope to be able to create partnership with different industries new ways of allowing apps to handle data. Those standard contract could be built in turn based on already existing emerging specification such as FAPI or HEART and empower both application creators but also users in understanding and knowing in a transparent way how their private data are being handled
+
+## Concepts
 
 In order to apply the self custody of data that every user should have today we decided to leverage the concepts from the flow blockchain. The aim is to build a system that will allow applications to access data that are part of a `child account` and still give the ability to transfer the management of that child account to a `parent account` owned by the user itself.
 
@@ -46,10 +64,6 @@ In order to acheive this a configuration will have to be made and the `consent` 
 | 2 | User choice: when the user first log he will have the choice of creating his account or use a **flow_account_creation** |
 | 3 | User only: The user must create his self custody wallet in order to access the app |
 | 4 | User hybrid: The user must create his self custody wallet in order to access the app and the **flow_account_creation** will be run to help him attached the required informations, multi sig information etc... |
-
-## Concepts
-
-A few concept should exist in the flowpenID server in order to ease the comprehension of the system to developers.
 
 A user token should have the `flow_custody` information to help a Dapp know how to handle him 
 |Value| Concept  |
@@ -100,7 +114,7 @@ The gosdk might be leverage with an added protection by token / authorization fr
 For the hackathon the freshmint library with a few changes was used in order to keep things not too long until the end of the hackathon
 The aim after is to have whitelisted address in case of application custody applications allowing users and app to be more secured about where the external flow might go.
 
-### Hackathon wanrning
+### Hackathon warning
 
 In order to acheive the sharing of contract between application and the user itself the claim were used as consent but in order to be compliant with standard this kind of action should fall inside the [FAPI](https://openid.net/wg/fapi/). A correct implementation would be to warn contract on creation that would be interacting with financial value. Other contract that wish to interact with health value should be implemented following the [HEART recommandations](https://openid.net/wg/heart/)
 
