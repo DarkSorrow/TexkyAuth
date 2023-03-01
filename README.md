@@ -71,7 +71,7 @@ A user token should have the `flow_custody` information to help a Dapp know how 
 | 0 | FlowpenID main contract |
 | 1 | Custom contract  |
 | 2 | User owned  |
-| 2 | Hybrid owned  |
+| 3 | Hybrid owned  |
 
  1. Application administration
 

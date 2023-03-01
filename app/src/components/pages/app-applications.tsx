@@ -18,7 +18,7 @@ import { AppDialogConfirm } from '../organisms/app-dialog-confirm';
 import { Openi18nOption } from '../../types/Schemas';
 import { useAuth } from '../../providers/auth';
 import { LoadingSuspense } from '../atoms/loading-suspense';
-import { DataLoad } from '../../types/App';
+import { DataLoad, Application } from '../../types/App';
 import { BASE_API } from '../../utils/constants';
 import { deleteRecord } from '../../utils/request';
 

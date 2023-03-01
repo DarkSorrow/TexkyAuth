@@ -14,25 +14,25 @@ import { ControlInput } from "../atoms/control-input";
 import { AppEditApplicationTemplate } from "../templates/app-edit-application";
 import { Form } from "../atoms/forms";
 import { LoadingSuspense } from "../atoms/loading-suspense";
-import { IFormAppliation, AppliationSchema } from "../../types/Zod";
+import { IFormAppliation, ApplicationSchema } from "../../types/Zod";
 import { SubmitLoading } from "../atoms/submit-loading";
-import { EditDataLoad } from '../../types/App';
+import { EditDataLoad, Application } from '../../types/App';
 
-const defaultApplication = {
+const defaultApplication: Application = {
   client_id: '',
-  application_type:          '',
+  application_type:          'web',
   client_application_type:   2,
   client_name:               '',
   client_secret:             '',
   client_uri:                '',
   consent_flow:              0,
   contacts:                  [],
-  cors_allowed:              [],
+  cors_origins:              [],
   default_acr:               [],
   flow_account_creation:     '',
   flow_contracts:            {},
   flow_custody:              0,
-  grant_types:               [],
+  grant_types:               ["refresh_token", "authorization_code"],
   legal_id:                  '',
   logo_uri:                  '',
   notif_params_json:         '',
@@ -104,7 +104,7 @@ export const AppEditApplicationPage = () => {
     console.log('application', values);
     try {
       if (!isEdit) {
-        delete values.client_id;
+        values.client_id = undefined;
       }
       const response = await fetch(`${BASE_API}/application`, {
         method: 'POST',
@@ -129,7 +129,7 @@ export const AppEditApplicationPage = () => {
     return <LoadingSuspense />;
   }
   return (
-    <Form onSuccess={onSubmitHandler} resolver={zodResolver(AppliationSchema)} defaultValues={data.data}>
+    <Form onSuccess={onSubmitHandler} resolver={zodResolver(ApplicationSchema)} defaultValues={data.data}>
       <AppEditApplicationTemplate 
         title={<AppTitle
           title={t<string>('eApplication.title')}

@@ -18,7 +18,7 @@ export const ControlInput = ({ name, defaultValue, ...otherProps }: AtomsProps) 
   const { t } = useTranslation();
   const error = get(errors, name);
   const isError = error !== undefined;
-
+  //console.log(error);
   return (
     <FormControl>
       <Controller

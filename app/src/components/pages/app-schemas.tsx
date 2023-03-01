@@ -6,6 +6,7 @@ import { CreateApplicationModal, CreateApplicationModalRef } from '../molecules/
 import axios from 'axios';
 import { useAuth } from '../../providers/auth';
 import { DeleteButton } from '../atoms/delete-button';
+import { Application } from '../../types/App';
 import { APPLICATIONS_BASE_URL, FETCH_APPLICATIONS_URL } from '../../utils/constants';
 
 type ApplicationsData = {
@@ -26,7 +27,7 @@ export const AppSchemasPage = () => {
         Authorization: `Bearer ${userToken}`
       }
   })
-  setApplications(applicationData.map(el => ({ id: el.client_id, ...el })));
+  setApplications(applicationData.map(el => ({ id: el.client_id || '', ...el })));
 }
 
 const deleteApplications = async () => {
