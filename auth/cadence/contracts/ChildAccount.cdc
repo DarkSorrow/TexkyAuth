@@ -1,5 +1,6 @@
  //Emulator
- import FlowToken from 0x0ae53cb6e3f42a79
+ //import FlowToken from 0xf8d6e0586b0a20c7
+ //import FungibleToken from 0xf8d6e0586b0a20c7
  //TestNet
  //import FlowToken from 0x7e60df042a9c0868
 
@@ -18,6 +19,7 @@
         pub let name: String
         pub let mailAdress: String
         pub let email: String
+        pub let age: UInt64
         pub let originatingPublicKey: String
 
         init(name: String, mailAdress: String, email: String, age: UInt64, originatingPublicKey: String) {
@@ -54,7 +56,7 @@
             self.parentAddress = address
         }
 
-        pub let isGrownUp(grownUpLimite: UInt64) {
+        pub fun isGrownUp(grownUpLimite: UInt64): Bool {
             return grownUpLimite >= self.info.age
         }
     }
@@ -145,19 +147,17 @@
 
             self.addChildAccountTag(account: newAccount, childAccountInfo: childAccountInfo, authAccountCapPath: authAccountCapPath)
 
-            let fundingProvider = signer.borrow<&FlowToken.Vault{FungibleToken.Provider}>(from: /storage/flowTokenVault)!
+            /*let fundingProvider = signer.borrow<&FlowToken.Vault{FungibleToken.Provider}>(from: /storage/flowTokenVault)!
             // Fund the new account with the initialFundingAmount specified
             newAccount.getCapability<&FlowToken.Vault{FungibleToken.Receiver}>(/public/flowTokenReceiver)
                 .borrow()!
-                .deposit(from: <-fundingProvider.withdraw(amount: initialFundingAmount))
+                .deposit(from: <-fundingProvider.withdraw(amount: initialFundingAmount))*/
 
             return newAccount
         }
 
         pub fun removeChildAccount(withAddress: Address) {
             if let controller: @ChildAccountController <-self.childAccounts.remove(key: withAddress) {
-                // Get a reference to the ChildAccountTag from the Capability
-                let tagRef = controller.getChildTagRef()
                 destroy controller
             }
         }

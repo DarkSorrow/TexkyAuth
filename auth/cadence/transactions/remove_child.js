@@ -1,4 +1,4 @@
-export default template = 
+export const template = 
 `
 import ChildAccount from {{MasterAdress}}
 

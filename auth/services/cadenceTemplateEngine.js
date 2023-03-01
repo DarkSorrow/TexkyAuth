@@ -1,5 +1,4 @@
-export const generateTemplate = function(templatePath, replaceMapping) {
-    let template = import(templatePath)
+export const generateTemplate = function(template, replaceMapping) {
     for (const key in replaceMapping) {
         template = template.replace(`{{${key}}}`, replaceMapping[key])
     }
