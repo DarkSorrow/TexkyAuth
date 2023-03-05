@@ -23,26 +23,86 @@ import apiFlowRouter from './api/flow.js';
 import apiSubjectRouter from './api/subject.js';
 import errors from './services/error.js';
 
-//Configure lasso bundle for marko templates
+import { homeTmpl } from './pages/home/index.js';
+
+/*(async () => {
+  await prebuild({
+    config: lassoConfig, // Either a lasso config object, or a path to one.
+    flags: ["skin-ds6"], // Lasso flags to use when building the pages.
+    pages: [
+      // A list of paths to marko templates to prebuild.
+      "./pages/error/template.marko",
+      "./pages/home/home.marko",
+      "./pages/logout/logout_success.marko",
+      "./pages/logout/logout.marko",
+      "./pages/logout/consent.marko",
+      "./pages/logout/interaction.marko",
+      "./pages/logout/login.marko",
+      "./pages/logout/repost.marko",
+    ]
+  });
+  logger.warn({}, 'Client auth error')
+})()*/
 configure({
   plugins: [
     "lasso-marko", // Allow Marko templates to be compiled and transported to the browser,
     "lasso-sass"
   ],
   outputDir: "static",
-  /*bundles: [
+  bundles: [
     {
-      name: "pico",
+      name: "wallet-type",
       dependencies: [
-        "require: @picocss/pico",
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/login-flow/login.marko"
+        },
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/login-flow/consent.marko"
+        },
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/login-flow/interaction.marko"
+        },
       ]
-    }
-  ],*/
+      
+    },
+    {
+      name: "simple",
+      dependencies: [
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/error/template.marko"
+        },
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/logout/logout.marko"
+        },
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/logout/logout_success.marko"
+        },
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/login-flow/repost.marko"
+        },
+        {
+          "type": "marko-dependencies",
+          "path": "./pages/home/home.marko"
+        },
+      ]
+      
+    },
+  ],
   minify: constant.isProduction, // Only minify JS and CSS code in production
   bundlingEnabled: constant.isProduction, // Only enable bundling in production
   fingerprintsEnabled: constant.isProduction // Only add fingerprints to URLs in production
 });
 
+/*homeTmpl.render({}, (err, html) => {
+  console.log('loaded with ', html);
+})*/
 /*const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
 delete directives['form-action'];
 const pHelmet = promisify(helmet({
@@ -113,7 +173,7 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
 if (constant.isProduction) {
   provider.proxy = true;
 
-  provider.use(async (ctx, next) => {
+  /*provider.use(async (ctx, next) => {
     if (ctx.secure) {
       await next();
     } else if (ctx.method === 'GET' || ctx.method === 'HEAD') {
@@ -126,7 +186,7 @@ if (constant.isProduction) {
       };
       ctx.status = 400;
     }
-  });
+  });*/
 }
 
 // Add the routes

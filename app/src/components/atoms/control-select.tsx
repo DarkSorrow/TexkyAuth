@@ -1,18 +1,18 @@
 import { useFormContext, Controller, get } from 'react-hook-form';
 import FormControl from '@mui/joy/FormControl';
-//import FormLabel from '@mui/joy/FormLabel';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
-import Input, { InputProps } from '@mui/joy/Input';
+import Select from '@mui/joy/Select';
 import { useTranslation } from "react-i18next";
 
 type AtomsProps = {
   name: string;
   label: string;
   defaultValue?: string;
-} & InputProps;
+  children?: React.ReactNode;
+};
 
-export const ControlInput = ({ name, label, defaultValue, ...otherProps }: AtomsProps) => {
+export const ControlSelect = ({ name, label, defaultValue, children }: AtomsProps) => {
   const {
     control,
     formState: { errors },
@@ -20,7 +20,7 @@ export const ControlInput = ({ name, label, defaultValue, ...otherProps }: Atoms
   const { t } = useTranslation();
   const error = get(errors, name);
   const isError = error !== undefined;
-  //console.log(error);
+  console.log(errors);
   return (
     <FormControl>
       <FormLabel>
@@ -31,11 +31,11 @@ export const ControlInput = ({ name, label, defaultValue, ...otherProps }: Atoms
         name={name}
         defaultValue={defaultValue}
         render={({ field }) => (
-          <Input
-            {...field}
-            {...otherProps}
-            error={isError}
-          />
+          <Select name={field.name} defaultValue={defaultValue} value={field.value} onChange={(event, val) => {
+            field.onChange(val);
+          }}>
+            {children}
+          </Select>
         )}
       />
       <FormHelperText>{isError ? t<string>([`error.${error.message}`, error.message]) : ''}</FormHelperText>

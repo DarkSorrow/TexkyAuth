@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 import marko from "marko";
 
-const homeTmpl = marko.load("./pages/home/home.marko");
+export const homeTmpl = marko.load("./pages/home/home.marko");
 
 const router = new Router();
 

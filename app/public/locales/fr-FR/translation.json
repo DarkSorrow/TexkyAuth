@@ -61,6 +61,7 @@
     "name": "Name",
     "id": "Client id",
     "secret": "Client secret",
+    "apptype":"Application's type",
     "active": "Active",
     "type": "Platform",
     "update": "Updated at"

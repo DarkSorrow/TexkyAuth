@@ -6,11 +6,13 @@ import Grid from '@mui/joy/Grid';
 import { useTranslation } from "react-i18next";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import Option from '@mui/joy/Option';
 
 import { useAuth } from '../../providers/auth';
 import { AppTitle } from "../molecules/app-title";
 import { BASE_API } from "../../utils/constants";
 import { ControlInput } from "../atoms/control-input";
+import { ControlSelect } from "../atoms/control-select";
 import { AppEditApplicationTemplate } from "../templates/app-edit-application";
 import { Form } from "../atoms/forms";
 import { LoadingSuspense } from "../atoms/loading-suspense";
@@ -143,13 +145,21 @@ export const AppEditApplicationPage = () => {
           <Grid>
             <ControlInput
               required
+              label={t<string>('eApplication.name')}
               name="client_name"
               data-testid="client_name"
-              placeholder=""
+              placeholder={t<string>('eApplication.name')}
             />
           </Grid>
           <Grid>
-            <div>more info</div>
+            <ControlSelect
+              label={t<string>('eApplication.apptype')}
+              name="application_type"
+              data-testid="application_type"
+            >
+              <Option value="web">Web</Option>
+              <Option value="native">Native</Option>
+            </ControlSelect>
           </Grid>
         </Grid>
       </Card>}

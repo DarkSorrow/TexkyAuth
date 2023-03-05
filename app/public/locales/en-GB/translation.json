@@ -75,6 +75,7 @@
     "name": "Client name",
     "id":"Client id",
     "secret":"Client secret",
+    "apptype":"Application's type",
     "link": "URL link",
     "linkDesc": "Link to load the form, used by your clients",
     "example": "Forms example from schema",

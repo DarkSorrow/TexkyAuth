@@ -23,6 +23,7 @@
     "@freshmint/core": "^0.7.0",
     "@koa/cors": "^4.0.0",
     "@lasso/marko-taglib": "^2.0.5",
+    "@marko/prebuild": "^5.0.3",
     "@nicokaiser/passport-apple": "^2.0.0",
     "@onflow/fcl": "^1.3.2",
     "@onflow/transport-grpc": "^1.1.4",
