@@ -98,7 +98,8 @@ const constant = {
   hackathon: {
     key: (process.env.HACKATHON_KEY) ? process.env.HACKATHON_KEY.trim() : 'psBvMzrnnYORehr6JMfTojeIrexEc4-Ct7PbHVCquQs',
     iv: (process.env.HACKATHON_IV) ? process.env.HACKATHON_IV.trim() : 'oBSRO83MZNfqbUKKt6QUGQ',
-  }
+  },
+  isHealthy: false,
 };
 
 export default constant;

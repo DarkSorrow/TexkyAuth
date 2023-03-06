@@ -22,6 +22,7 @@ import apiApplicationRouter from './api/application.js';
 import apiFlowRouter from './api/flow.js';
 import apiSubjectRouter from './api/subject.js';
 import errors from './services/error.js';
+import { healthCheck } from './services/healthcheck.js';
 
 import { homeTmpl } from './pages/home/index.js';
 
@@ -51,8 +52,21 @@ configure({
   outputDir: "static",
   bundles: [
     {
-      name: "wallet-type",
+      name: "auth",
       dependencies: [
+        {
+          "intersection": [
+              "./components/app-interaction/browser.json",
+              "./components/app-layout/browser.json"
+          ]
+        },
+        { 
+          "path": "./components/style.scss",
+        },
+        { 
+          "path": "./browser.wallet.js",
+          "if-flag": "wallet",
+        },
         {
           "type": "marko-dependencies",
           "path": "./pages/login-flow/login.marko"
@@ -65,12 +79,6 @@ configure({
           "type": "marko-dependencies",
           "path": "./pages/login-flow/interaction.marko"
         },
-      ]
-      
-    },
-    {
-      name: "simple",
-      dependencies: [
         {
           "type": "marko-dependencies",
           "path": "./pages/error/template.marko"
@@ -91,8 +99,8 @@ configure({
           "type": "marko-dependencies",
           "path": "./pages/home/home.marko"
         },
-      ]
-      
+      ],
+      flags: ['wallet']
     },
   ],
   minify: constant.isProduction, // Only minify JS and CSS code in production
@@ -197,7 +205,24 @@ provider.use(apiApplicationRouter.routes());
 provider.use(apiFlowRouter.routes());
 provider.use(apiSubjectRouter.routes());
 // Start the server
-const server = provider.listen(constant.port, () => {
+
+/**
+ * Build pages by calling themselves upon initalisation
+ */
+async function pageBuild() {
+  try {
+    let test = await fetch(`${constant.issuer}/healthcheck/interaction`, { method: 'GET' });
+    await test.text();
+    test = await fetch(`${constant.issuer}/healthcheck/layout`, { method: 'GET' });
+    await test.text();
+    healthCheck.setHealth(1);
+  } catch (err) {
+    healthCheck.setHealth(0);
+  }
+}
+
+const server = provider.listen(constant.port, async () => {
+  await pageBuild();
   logger.warn(`oidc-provider listening on port ${constant.port}, check ${constant.issuer}/.well-known/openid-configuration`);
   let graceful = false;
   function gracefulExit() {
@@ -223,6 +248,7 @@ const server = provider.listen(constant.port, () => {
   }
   process.on('SIGTERM', gracefulExit);
   process.on('SIGINT', gracefulExit);
+
 
   if (process.send) {
     process.send("online");
