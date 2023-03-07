@@ -1,12 +1,15 @@
 <lasso-page flags=["wallet"] />
 <lasso-resource path="../texky.ico" var="favicon"/>
+<lasso-resource path="../manifest.json" var="manifest"/>
 
 <!doctype html>
 <html lang=`${input.lang}` dir=`${input.dir}`>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#43a047" />
     <link rel="shortcut icon" href=favicon.url>
+    <link rel="manifest" href=manifest.url>
     <title>${input.title}</title>
     <lasso-head/>
   </head>

@@ -38,6 +38,7 @@ router.get('/healthcheck', (ctx) => {
   if (healthCheck.health === 1) {
     ctx.body = "true";
   } else {
+    ctx.status = 400;
     ctx.body = "false";
   }
 });

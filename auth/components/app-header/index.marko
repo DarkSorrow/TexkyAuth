@@ -33,9 +33,9 @@ class {
   </ul>
   <ul>
     <li>
-      <details role="list">
+      <details role="group">
         <summary aria-haspopup="listbox" role="link" class="secondary">Language</summary>
-        <ul role="listbox">
+        <ul role="link">
           <li><button on-click('changeLanguage', 'en') class="outline">English</button></li>
           <li><button on-click('changeLanguage', 'fr') class="outline">Français</button></li>
           <li><button on-click('changeLanguage', 'ar') class="outline">عربي</button></li>
@@ -43,9 +43,9 @@ class {
       </details>
     </li>
     <li>
-      <details role="list">
+      <details role="group">
         <summary aria-haspopup="listbox" role="link" class="secondary">Theme</summary>
-        <ul role="listbox">
+        <ul role="link">
           <li><button on-click('changeTheme', 'light') class="outline" data-theme-switcher="light">Light</button></li>
           <li><button on-click('changeTheme', 'dark') class="outline" data-theme-switcher="dark">Dark</button></li>
         </ul>

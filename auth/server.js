@@ -24,26 +24,6 @@ import apiSubjectRouter from './api/subject.js';
 import errors from './services/error.js';
 import { healthCheck } from './services/healthcheck.js';
 
-import { homeTmpl } from './pages/home/index.js';
-
-/*(async () => {
-  await prebuild({
-    config: lassoConfig, // Either a lasso config object, or a path to one.
-    flags: ["skin-ds6"], // Lasso flags to use when building the pages.
-    pages: [
-      // A list of paths to marko templates to prebuild.
-      "./pages/error/template.marko",
-      "./pages/home/home.marko",
-      "./pages/logout/logout_success.marko",
-      "./pages/logout/logout.marko",
-      "./pages/logout/consent.marko",
-      "./pages/logout/interaction.marko",
-      "./pages/logout/login.marko",
-      "./pages/logout/repost.marko",
-    ]
-  });
-  logger.warn({}, 'Client auth error')
-})()*/
 configure({
   plugins: [
     "lasso-marko", // Allow Marko templates to be compiled and transported to the browser,
@@ -62,6 +42,15 @@ configure({
         },
         { 
           "path": "./components/style.scss",
+        },
+        { 
+          "path": "./components/texky-192.png",
+        },
+        { 
+          "path": "./components/texky-256.png",
+        },
+        { 
+          "path": "./components/texky-512.png",
         },
         { 
           "path": "./browser.wallet.js",
@@ -146,7 +135,9 @@ provider.app.context.flow = flowClient;
 provider.app.context.errors = errors;
 
 // Before logging information
-provider.use(mount("/static", serve("static")));
+provider.use(mount("/static", serve("static", {
+  maxAge: 31536000,
+})));
 
 provider.use(async (ctx, next) => { // loggin calls, use for metrics?
   const start = Date.now();
@@ -178,10 +169,13 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
   }, '');
 });
 
+// Maybe change?
+provider.use(homeRouter.routes());
+
 if (constant.isProduction) {
   provider.proxy = true;
 
-  /*provider.use(async (ctx, next) => {
+  provider.use(async (ctx, next) => {
     if (ctx.secure) {
       await next();
     } else if (ctx.method === 'GET' || ctx.method === 'HEAD') {
@@ -194,13 +188,12 @@ if (constant.isProduction) {
       };
       ctx.status = 400;
     }
-  });*/
+  });
 }
 
 // Add the routes
 provider.use(loginFlow(provider).routes());
 provider.use(socialRouter(provider).routes());
-provider.use(homeRouter.routes());
 provider.use(apiApplicationRouter.routes());
 provider.use(apiFlowRouter.routes());
 provider.use(apiSubjectRouter.routes());
@@ -211,9 +204,9 @@ provider.use(apiSubjectRouter.routes());
  */
 async function pageBuild() {
   try {
-    let test = await fetch(`${constant.issuer}/healthcheck/interaction`, { method: 'GET' });
+    let test = await fetch(`http://localhost:${constant.port}/healthcheck/interaction`, { method: 'GET' });
     await test.text();
-    test = await fetch(`${constant.issuer}/healthcheck/layout`, { method: 'GET' });
+    test = await fetch(`http://localhost:${constant.port}/healthcheck/layout`, { method: 'GET' });
     await test.text();
     healthCheck.setHealth(1);
   } catch (err) {

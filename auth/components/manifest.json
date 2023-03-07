@@ -1,25 +1,25 @@
 {
-  "short_name": "Texky auth",
+  "short_name": "Novastera authentication",
   "name": "Texky authentication service",
   "icons": [
     {
-      "src": "texky.ico",
+      "src": "texky-d352e85b.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "texky-192.png",
+      "src": "texky-256-177e460c.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "texky-512.png",
+      "src": "texky-512-07a6f9fd.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#43a047",
   "background_color": "#ffffff"
 }
