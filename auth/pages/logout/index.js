@@ -1,9 +1,10 @@
 
 import marko from "marko";
 
-const logoutTmpl = marko.load("./pages/logout/logout.marko");
-const logoutSuccessTmpl = marko.load("./pages/logout/logout_success.marko");
-
+/*const logoutTmpl = marko.load("./pages/logout/logout.marko");
+const logoutSuccessTmpl = marko.load("./pages/logout/logout_success.marko");*/
+const logoutTmpl = marko.load("./templates/logout.marko");
+const logoutSuccessTmpl = marko.load("./templates/logout_success.marko");
 export const logoutMiddleware = async (ctx, form) => {
   console.log('logout template', {
     form,

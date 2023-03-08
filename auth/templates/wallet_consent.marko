@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang=`${input.html.lang}` dir=`${input.html.dir}`>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#43a047" />
+    <link rel="shortcut icon" href="/static/texky.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/bundle.css">
+    <style nonce=`${input.html.nonce}`>article {margin: 0 !important;}.flex-container {display: flex;}.flex-long {flex: 0.6;}.flex-small {flex: 0.4;}.flex-child {flex: 1;}</style>
+    <title>${input.title}</title>
+  </head>
+  <body>
+    <main class="container">
+      <div class="flex-container">
+        <if(input.client.logoUri)>
+        <div>
+          <img src=`${input.client.logoUri}` alt="logo" width="128" height="128" />
+        </div>
+        </if>
+        <div class="flex-child">
+          <h3>Application consent</h3>
+          <p>You will soon be redirected to the application ${input.client.clientName} (<a href="#">
+            term of services
+          </a> and <a href="#">
+            privacy policies
+          </a>)</p>
+        </div>
+      </div>    
+      <article>
+
+        <if(input.client.flow_custody!==0)>
+          <if(input.client.flow_custody===1)>
+            <p>Your account will be setup following this contract <a href="#">${input.client.flow_account_creation}</a></p>
+          </if>
+          <else-if(input.client.flow_custody===2)>
+            <div class="flex-container">
+              <div class="flex-long">
+                <p>Press continue to get into the application or create and link your wallet first</p>
+              </div>
+              <div class="flex-small">
+                <button class="contrast">Create</button>
+              </div>
+            </div>
+          </else-if>
+          <else-if(input.client.flow_custody===3)>
+            <div class="flex-container">
+              <div class="flex-long">
+                <p>Please create or use your current flow wallet to access the application</p>
+              </div>
+              <div class="flex-small">
+                <button class="contrast">Create</button>
+              </div>
+            </div>
+          </else-if>
+          <else-if(input.client.flow_custody===4)>
+            <div class="flex-container">
+              <div class="flex-long">
+                <p>Please create or use your current flow wallet to access the application</p>
+              </div>
+              <div class="flex-small">
+                <button class="contrast">Create</button>
+              </div>
+            </div>
+          </else-if>
+          <hr />
+        </if>
+
+
+
+
+        <ul>
+        <if(input.missingOIDCScope.size === 0 && input.missingOIDCClaims.size === 0 && !input.missingResourceScopes)>
+          <li>the client is asking you to confirm previously given authorization</li>
+        </if>
+
+        <if(input.missingOIDCScope.size)>
+          <li>scopes:</li>
+          <ul>
+            <for|scope, index, scopeList| of=input.missingOIDCScope>
+              <li>${scope}</li>
+            </for>
+          </ul>
+        </if>
+        <if(input.missingOIDCClaims.size)>
+          <li>claims:</li>
+          <ul>
+            <for|claim, index, claimList| of=input.missingOIDCClaims>
+              <li>${claim}</li>
+            </for>
+          </ul>
+        </if>
+        <if(input.missingResourceScopes)>
+          <for|indicator, scopes| in=input.missingResourceScopes>
+            <li>${indicator}:</li>
+            <ul>
+              <for|scope, index, scopeList| of=scopes>
+                <li>${scope}</li>
+              </for>
+            </ul>
+          </for>
+        </if>
+        <if(input.params.scope && input.params.scope.includes('offline_access'))>
+          <li>
+          the client is asking to have offline access to this authorization
+            <if(input.missingOIDCScope || !input.missingOIDCScope.includes('offline_access'))>
+              (which you've previously granted)
+            </if>
+          </li>
+        </if>
+        </ul>
+        <form autocomplete="off" action=`/interaction/${input.uid}/confirm` method="post">
+          <button autofocus type="submit">Continue</button>
+        </form>
+      </article>
+    </main>
+    <script language="javascript" type="text/javascript" src="/static/wallet.js" nonce=`${input.html.nonce}` defer/>
+  </body>
+</html>

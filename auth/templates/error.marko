@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang=`${input.html.lang}` dir=`${input.html.dir}`>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#43a047" />
+    <link rel="shortcut icon" href="/static/texky.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/bundle.css">
+    <title>${input.title}</title>
+  </head>
+  <body>
+    <article>
+      <header>
+        Oops! something went wrong (Code: ${input.statusCode})
+      </header>
+      ${input.error_description}
+      <footer>
+        <a href=`${input.goBack}` role="button">Back to main page</a>
+      </footer>
+    </article>
+  </body>
+</html>

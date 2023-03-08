@@ -2,7 +2,8 @@
 import marko from "marko";
 import { errors } from 'oidc-provider';
 
-const errorTemplate = marko.load("./pages/error/template.marko");
+//const errorTemplate = marko.load("./pages/error/template.marko");
+const errorTemplate = marko.load("./templates/error.marko");
 const { SessionNotFound } = errors;
 
 export const errorMiddleware = async (ctx, out, err) => {

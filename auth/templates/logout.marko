@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang=`${input.html.lang}` dir=`${input.html.dir}`>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#43a047" />
+    <link rel="shortcut icon" href="/static/texky.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/bundle.css">
+    <title>${input.title}</title>
+  </head>
+  <body>
+    <article>
+      <header>Header</header>
+      $!{input.form}
+      <if(input.auto === true)>
+      <script language="javascript" type="text/javascript" nonce=`${input.html.nonce}`>
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'logout';
+        input.value = 'yes';
+        document.getElementById('op.logoutForm').appendChild(input);
+        document.getElementById('op.logoutForm').submit();
+      </script>
+      </if>
+      <header>
+        <h1>${input.title}</h1>
+        <p>description</p>
+      </header>
+      <button type="submit" form="op.logoutForm" value="yes" name="logout" class="button">yes_move</button>
+      <button type="submit" form="op.logoutForm" class="button--alt">no_stay</button>
+    </article>
+  </body>
+</html>

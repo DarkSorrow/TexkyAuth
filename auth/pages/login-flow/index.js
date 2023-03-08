@@ -9,9 +9,12 @@ import { verifyMessage } from 'ethers/lib/utils.js';
 
 import Account from '../../services/account.js';
 import { sessionCheckMiddleware } from '../error/index.js';
-export const loginTmpl = marko.load("./pages/login-flow/login.marko");
+/*export const loginTmpl = marko.load("./pages/login-flow/login.marko");
 const repostTmpl = marko.load("./pages/login-flow/repost.marko");
-const consentTmpl = marko.load("./pages/login-flow/consent.marko");
+const consentTmpl = marko.load("./pages/login-flow/consent.marko");*/
+export const loginTmpl = marko.load("./templates/wallet_login.marko");
+const repostTmpl = marko.load("./templates/repost.marko");
+const consentTmpl = marko.load("./templates/wallet_consent.marko");
 
 const validateEmail = (email) => {
   const structureEmail = email.split('@');

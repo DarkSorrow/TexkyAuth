@@ -1,6 +1,16 @@
-<app-layout lang=`${input.html.lang}` dir=`${input.html.dir}` title=`${input.title}`>
+<!doctype html>
+<html lang=`${input.html.lang}` dir=`${input.html.dir}`>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#43a047" />
+    <link rel="shortcut icon" href="/static/texky.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/bundle.css">
+    <title>${input.title}</title>
+  </head>
   <body>
-    <script lasso-nonce>
+    <script nonce=`${input.html.nonce}`>
       function parseQuery(queryString) {
         var query = {};
         var pairs = (queryString[0] === '?' ? queryString.slice(1) : queryString).split('&');
@@ -35,4 +45,4 @@
       form.submit();
     </script>
   </body>
-</app-layout>
+</html>

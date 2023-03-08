@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang=`${input.html.lang}` dir=`${input.html.dir}`>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#43a047" />
+    <link rel="shortcut icon" href="/static/texky.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/bundle.css">
+    <style nonce=`${input.html.nonce}`>body > main {display: flex;flex-direction: column;justify-content: center;min-height: calc(100vh - 7rem);padding: 0;}article {padding: 0;overflow: hidden;}article div {padding: 1rem;}@media (min-width: 576px) {body > main {padding: 1.25rem 0;}article div {padding: 1.25rem;}}@media (min-width: 768px) {body > main {padding: 1.5rem 0;flex-direction: column;}article div {padding: 1.5rem;}}@media (min-width: 992px) {body > main {padding: 1.75rem 0;flex-direction: column;}article div {padding: 1.75rem;}}@media (min-width: 1200px) {body > main {padding: 2rem 0;}article div {padding: 2rem;}}.flex-container {display: flex;}.socialLink {display: block !important;width: 100% !important;margin-bottom: 0.5rem;}.facebook {background-color: #4267B2 !important;border-color: #4267B2 !important;}.google {background-color: #4285f4 !important;border-color: #4285f4 !important;}.apple {background-color: black !important;border-color: black !important;}</style>
+    <title>${input.title}</title>
+  </head>
+  <body>
+    <nav class="container-fluid">
+      <ul>
+        <li><strong>Texky</strong></li>
+      </ul>
+      <ul>
+        <li>
+          <details role="group">
+            <summary aria-haspopup="listbox" role="link" class="secondary">Language</summary>
+            <ul role="link">
+              <li><button id="en" name="language" class="outline">English</button></li>
+              <li><button id="fr" name="language" class="outline">Français</button></li>
+              <li><button id="ar" name="language" class="outline">عربي</button></li>
+            </ul>
+          </details>
+        </li>
+        <li>
+          <details role="group">
+            <summary aria-haspopup="listbox" role="link" class="secondary">Theme</summary>
+            <ul role="link">
+              <li><button name="theme" class="outline" id="light">Light</button></li>
+              <li><button name="theme" class="outline" id="dark">Dark</button></li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+    </nav>
+    <script language="javascript" type="text/javascript" nonce=`${input.html.nonce}` async>
+      const changeLanguage = (event) => {
+        event.preventDefault();
+        var lang = event.target.id;
+        var kvp = document.location.search.substr(1).split('&');
+        let i=0;
+        for(; i<kvp.length; i++){
+            if (kvp[i].startsWith('lng=')) {
+                let pair = kvp[i].split('=');
+                pair[1] = lang;
+                kvp[i] = pair.join('=');
+                break;
+            }
+        }
+        if(i >= kvp.length){
+            kvp[kvp.length] = ['lng',lang].join('=');
+        }
+        let params = kvp.join('&');
+        document.location.search = params;
+      }
+      const changeTheme = (event) => {
+        event.preventDefault();
+        document.querySelector('html').setAttribute('data-theme', event.target.id);
+      }
+      const languages = document.getElementsByName('language');
+      const themes = document.getElementsByName('theme');
+      languages.forEach(language => {
+        language.addEventListener('click', changeLanguage);
+      });
+      themes.forEach(theme => {
+        theme.addEventListener('click', changeTheme);
+      });
+    </script>
+    <!-- Main -->
+    <main class="container-fluid">
+      <article class="grid">
+        <div>
+          <if(input.error?.message)>
+            <p>${input.error.message}</p>
+          </if>
+
+
+          <if(input.prompt === 'create')>
+            <hgroup>
+              <h1>Sign up</h1>
+              <h2>Already have an account? <a href="#">Sign in</a></h2>
+            </hgroup>
+            <form autocomplete="off" action=`/interaction/${input.uid}/register` method="post">
+              <input type="hidden" name="_csrf" value=`${input.csrf}`/>
+              <input type="text" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required>
+              <input type="password" name="pwd" placeholder="Password" aria-label="Password" autocomplete="current-pwd" required>
+              <button type="submit" class="contrast">Register</button>
+            </form>
+          </if>
+          <else>
+            <hgroup>
+              <h1>Sign in</h1>
+              <h2>No account yet? <a href="#">Sign up</a></h2>
+            </hgroup>
+            <form autocomplete="off" action=`/interaction/${input.uid}/login` method="post">
+              <input type="hidden" name="_csrf" value=`${input.csrf}`/>
+              <input type="text" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required>
+              <input type="password" name="password" placeholder="Password" aria-label="Password" autocomplete="password" required>
+              <fieldset>
+                <label for="remember">
+                  <input type="checkbox" role="switch" id="remember" name="remember">
+                  Remember me
+                </label>
+              </fieldset>
+              <button type="submit" class="contrast">Login</button>
+            </form>
+          </else>
+
+          <hr />
+          <a href=`/social/login/facebook/flowpenid/${input.uid}` class="socialLink facebook" role="button"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i> Login with facebook</a>
+          <a href=`/social/login/google/flowpenid/${input.uid}` class="socialLink google" role="button"><i class="fa-brands fa-google" aria-hidden="true"></i> Login with google</a>
+          <a href=`/social/login/apple/flowpenid/${input.uid}` class="socialLink apple" role="button"><i class="fa-brands fa-apple" aria-hidden="true"></i> Login with apple</a>
+        </div>
+        <div>
+          <hgroup>
+            <h1>Web3</h1>
+            <h2>Use one of your wallet!</h2>
+          </hgroup>
+          <form autocomplete="off" name="flow-form" id="flow-form" action=`/interaction/${input.uid}/flow` method="post">
+            <input type="hidden" name="fcl" id="fcl" value="xd241q">
+            <button id="flow-action" name="flow-action" type="submit" aria-busy="true" disabled>Login with flow</button>
+          </form>
+          <form autocomplete="off" name="wagmi-form" id="wagmi-form" action=`/interaction/${input.uid}/wagmi` method="post">
+            <input type="hidden" name="wagmi" id="wagmi" value="sd84e">
+            <input type="hidden" name="sigmi" id="sigmi" value="v">
+            <button id="wagmi-action" name="wagmi-action" class="secondary" type="submit" aria-busy="true" disabled>Login with Metamask</button>
+          </form>
+          <script language="javascript" type="text/javascript" src="/static/wallet.js" nonce=`${input.html.nonce}` defer/>
+          <img src="/static/block.png" alt="portal picture" height=200 />
+        </div>
+      </article>
+    </main><!-- ./ Main -->
+  </body>
+</html>

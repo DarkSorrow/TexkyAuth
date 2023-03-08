@@ -1,8 +1,9 @@
 import Provider from 'oidc-provider';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import mount from "koa-mount";
 import serve from "koa-static";
-import { configure } from "lasso";
+//import Lasso from "lasso";
+import { nanoid } from 'nanoid';
 /*import { promisify } from 'util';
 // revisit after to create rules with clients origins
 import helmet from 'helmet';*/
@@ -23,92 +24,6 @@ import apiFlowRouter from './api/flow.js';
 import apiSubjectRouter from './api/subject.js';
 import errors from './services/error.js';
 import { healthCheck } from './services/healthcheck.js';
-
-configure({
-  plugins: [
-    "lasso-marko", // Allow Marko templates to be compiled and transported to the browser,
-    "lasso-sass"
-  ],
-  outputDir: "static",
-  bundles: [
-    {
-      name: "auth",
-      dependencies: [
-        {
-          "intersection": [
-              "./components/app-interaction/browser.json",
-              "./components/app-layout/browser.json"
-          ]
-        },
-        { 
-          "path": "./components/style.scss",
-        },
-        { 
-          "path": "./components/texky-192.png",
-        },
-        { 
-          "path": "./components/texky-256.png",
-        },
-        { 
-          "path": "./components/texky-512.png",
-        },
-        { 
-          "path": "./browser.wallet.js",
-          "if-flag": "wallet",
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/login-flow/login.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/login-flow/consent.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/login-flow/interaction.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/error/template.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/logout/logout.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/logout/logout_success.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/login-flow/repost.marko"
-        },
-        {
-          "type": "marko-dependencies",
-          "path": "./pages/home/home.marko"
-        },
-      ],
-      flags: ['wallet']
-    },
-  ],
-  minify: constant.isProduction, // Only minify JS and CSS code in production
-  bundlingEnabled: constant.isProduction, // Only enable bundling in production
-  fingerprintsEnabled: constant.isProduction // Only add fingerprints to URLs in production
-});
-
-/*homeTmpl.render({}, (err, html) => {
-  console.log('loaded with ', html);
-})*/
-/*const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
-delete directives['form-action'];
-const pHelmet = promisify(helmet({
-  contentSecurityPolicy: {
-    useDefaults: false,
-    directives,
-  },
-}));*/
-
 //Configure koa access with oidc
 const provider = new Provider(constant.issuer, { DefaultAdapter, ...oidcConfig });
 function handleClientAuthErrors(ctx, err) {
@@ -141,8 +56,6 @@ provider.use(mount("/static", serve("static", {
 
 provider.use(async (ctx, next) => { // loggin calls, use for metrics?
   const start = Date.now();
-  //await pHelmet(ctx.req, ctx.res);
-  ctx.request.app_rid = (ctx.request.header['x-req-id']) ? ctx.request.header['x-req-id'] : randomUUID();
   // Language construction part
   const lang = setRequestLanguage(ctx);
   ctx.state.t = i18nInstances[lang].t; // don't push the main object so it doesn't get changed
@@ -152,6 +65,10 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
     dir: LANGUAGE_LIST[lang].d || 'ltr',
   }
   // end of language construction
+  //await pHelmet(ctx.req, ctx.res);
+  ctx.state.html.nonce = randomUUID();//nanoid(12); // script-src 'nonce-${ctx.state.html.nonce}'
+  ctx.request.app_rid = (ctx.request.header['x-req-id']) ? ctx.request.header['x-req-id'] : ctx.state.html.nonce; // form-action 'self' https://auth.texky.com;
+  ctx.set('Content-Security-Policy', `default-src 'self'; font-src 'self';img-src * data:; script-src 'nonce-${ctx.state.html.nonce}'; object-src 'none'; base-uri 'none'; style-src 'self' 'nonce-${ctx.state.html.nonce}'; frame-ancestors 'self'; frame-src 'self' https://fcl-discovery.onflow.org;`);
   await next();
   // Logging the result of the request
   logger[(ctx.response.status < 500) ? 'info' : 'error']({
@@ -168,9 +85,6 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
     //query: ctx.request.query,
   }, '');
 });
-
-// Maybe change?
-provider.use(homeRouter.routes());
 
 if (constant.isProduction) {
   provider.proxy = true;
@@ -192,6 +106,7 @@ if (constant.isProduction) {
 }
 
 // Add the routes
+provider.use(homeRouter.routes());
 provider.use(loginFlow(provider).routes());
 provider.use(socialRouter(provider).routes());
 provider.use(apiApplicationRouter.routes());
@@ -199,23 +114,7 @@ provider.use(apiFlowRouter.routes());
 provider.use(apiSubjectRouter.routes());
 // Start the server
 
-/**
- * Build pages by calling themselves upon initalisation
- */
-async function pageBuild() {
-  try {
-    let test = await fetch(`http://localhost:${constant.port}/healthcheck/interaction`, { method: 'GET' });
-    await test.text();
-    test = await fetch(`http://localhost:${constant.port}/healthcheck/layout`, { method: 'GET' });
-    await test.text();
-    healthCheck.setHealth(1);
-  } catch (err) {
-    healthCheck.setHealth(0);
-  }
-}
-
 const server = provider.listen(constant.port, async () => {
-  await pageBuild();
   logger.warn(`oidc-provider listening on port ${constant.port}, check ${constant.issuer}/.well-known/openid-configuration`);
   let graceful = false;
   function gracefulExit() {
