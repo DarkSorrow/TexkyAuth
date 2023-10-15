@@ -10,7 +10,6 @@ import helmet from 'helmet';*/
 //pm2 start app.js --node-args="-r esm"
 import * as cassandra from './services/cassandra.js';
 import { redisClient } from './services/redis.js';
-import { flowClient } from './services/flow.js';
 import { logger } from './services/logger.js';
 import oidcConfig from './configurations/oidc.js';
 import constant from './configurations/constant.js';
@@ -20,10 +19,13 @@ import loginFlow from './pages/login-flow/index.js';
 import homeRouter from './pages/home/index.js';
 import socialRouter from './pages/social/index.js';
 import apiApplicationRouter from './api/application.js';
-import apiFlowRouter from './api/flow.js';
 import apiSubjectRouter from './api/subject.js';
 import errors from './services/error.js';
-import { healthCheck } from './services/healthcheck.js';
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 //Configure koa access with oidc
 const provider = new Provider(constant.issuer, { DefaultAdapter, ...oidcConfig });
 function handleClientAuthErrors(ctx, err) {
@@ -46,11 +48,10 @@ provider.on('revocation.error', handleClientAuthErrors);
 provider.app.context.log = logger;
 provider.app.context.cassandra = cassandra;
 provider.app.context.redis = redisClient;
-provider.app.context.flow = flowClient;
 provider.app.context.errors = errors;
 
 // Before logging information
-provider.use(mount("/static", serve("static", {
+provider.use(mount(join(__dirname, "./static"), serve("static", {
   maxAge: 31536000,
 })));
 
@@ -68,7 +69,7 @@ provider.use(async (ctx, next) => { // loggin calls, use for metrics?
   //await pHelmet(ctx.req, ctx.res);
   ctx.state.html.nonce = randomUUID();//nanoid(12); // script-src 'nonce-${ctx.state.html.nonce}'
   ctx.request.app_rid = (ctx.request.header['x-req-id']) ? ctx.request.header['x-req-id'] : ctx.state.html.nonce; // form-action 'self' https://auth.texky.com;
-  ctx.set('Content-Security-Policy', `default-src 'self'; font-src 'self';img-src * data:; script-src 'nonce-${ctx.state.html.nonce}'; object-src 'none'; base-uri 'none'; style-src 'self' 'nonce-${ctx.state.html.nonce}'; frame-ancestors 'self'; frame-src 'self' https://fcl-discovery.onflow.org;`);
+  ctx.set('Content-Security-Policy', `default-src 'self'; font-src 'self';img-src * data:; script-src 'nonce-${ctx.state.html.nonce}'; object-src 'none'; base-uri 'none'; style-src 'self' 'nonce-${ctx.state.html.nonce}'; frame-ancestors 'self'; frame-src 'self';`);
   await next();
   // Logging the result of the request
   logger[(ctx.response.status < 500) ? 'info' : 'error']({
@@ -110,7 +111,6 @@ provider.use(homeRouter.routes());
 provider.use(loginFlow(provider).routes());
 provider.use(socialRouter(provider).routes());
 provider.use(apiApplicationRouter.routes());
-provider.use(apiFlowRouter.routes());
 provider.use(apiSubjectRouter.routes());
 // Start the server
 

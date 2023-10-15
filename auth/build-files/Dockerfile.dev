@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim
+FROM node:20-bookworm-slim
 
 ARG NODE_ENV=development
 ENV NODE_ENV $NODE_ENV
@@ -6,6 +6,7 @@ ENV NODE_ENV $NODE_ENV
 EXPOSE 8080
 EXPOSE 9229
 
+RUN npm install browser-refresh -g
 COPY package.json yarn.lock ./
 RUN apt-get update && apt-get install -y --no-install-recommends apt-transport-https ca-certificates git gnupg
 RUN update-ca-certificates

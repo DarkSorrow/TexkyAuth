@@ -1,9 +1,13 @@
 //import template from "./template.marko";
 import marko from "marko";
 import { errors } from 'oidc-provider';
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 //const errorTemplate = marko.load("./pages/error/template.marko");
-const errorTemplate = marko.load("./templates/error.marko");
+const errorTemplate = marko.load(join(__dirname, "../../templates/error.marko"));
 const { SessionNotFound } = errors;
 
 export const errorMiddleware = async (ctx, out, err) => {

@@ -4,17 +4,20 @@ import { koaBody } from 'koa-body';
 import { strict as assert } from 'node:assert';
 import marko from "marko";
 import { nanoid } from 'nanoid';
-import { AppUtils } from "@onflow/fcl";
-import { verifyMessage } from 'ethers/lib/utils.js';
+import { verifyMessage } from 'ethers'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 import Account from '../../services/account.js';
 import { sessionCheckMiddleware } from '../error/index.js';
 /*export const loginTmpl = marko.load("./pages/login-flow/login.marko");
 const repostTmpl = marko.load("./pages/login-flow/repost.marko");
 const consentTmpl = marko.load("./pages/login-flow/consent.marko");*/
-export const loginTmpl = marko.load("./templates/wallet_login.marko");
-const repostTmpl = marko.load("./templates/repost.marko");
-const consentTmpl = marko.load("./templates/wallet_consent.marko");
+export const loginTmpl = marko.load(join(__dirname, "../../templates/wallet_login.marko"));
+const repostTmpl = marko.load(join(__dirname, "../../templates/repost.marko"));
+const consentTmpl = marko.load(join(__dirname, "../../templates/wallet_consent.marko"));
 
 const validateEmail = (email) => {
   const structureEmail = email.split('@');
@@ -310,84 +313,6 @@ export default (provider) => {
       });
       return;
     }
-  });
-
-  router.post('/interaction/:uid/flow', body, async (ctx) => {
-    const { uid, params } = await provider.interactionDetails(ctx.req, ctx.res);
-    ctx.request.app_client = params.client_id;
-    let error = null;
-    let accountProof = null;
-    if (ctx.request.body.fcl) {
-      try {
-        const proof = JSON.parse(ctx.request.body.fcl);
-        accountProof = getAccountProof(proof);
-        if (accountProof/* && ctx.cookies.get('nonrf') === accountProof.nonce*/) {
-          ctx.log.error({ accountProof, nonce: ctx.cookies.get('nonrf') }, "AccountProof verifyAccountProof");
-          const isValid = await AppUtils.verifyAccountProof(
-            'flowpenID',
-            {
-              address: accountProof.address,
-              nonce: accountProof.nonce,
-              signatures: accountProof.signatures,
-            },
-          )
-          if (!isValid) {
-            error = ctx.errors.getError('016');
-          }  
-        }
-      } catch (err) {
-        ctx.log.error({ err }, '[Flow registration]')
-        error = ctx.errors.getError('017');
-      }
-    }
-    if (error !== null || accountProof === null) {
-      ctx.type = 'html';
-      ctx.status = 400;
-      const csrf = nanoid(14);
-      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
-      ctx.body = loginTmpl.stream({
-        html: ctx.state.html,
-        title: ctx.state.t('loginFlow.title'),
-        csrf,
-        uid,
-        error,
-      });
-      return;
-    }
-    const account = await Account.findOrCreateFlow(ctx, accountProof.address, ctx.request.body.fcl);
-    if (account.suspended === true) {
-      ctx.type = 'html';
-      ctx.status = 400;
-      const csrf = nanoid(14);
-      ctx.cookies.set('_xsecfflg', csrf, { signed: false, httpOnly: true, sameSite: 'strict' });
-      ctx.body = loginTmpl.stream({
-        html: ctx.state.html,
-        title: ctx.state.t('loginFlow.title'),
-        csrf,
-        uid,
-        error,
-      });
-      return;
-    }
-    const result = {
-      login: {
-        accountId: account.subject,
-        acr: 'urn:mace:incommon:iap:bronze',
-        amr: [
-          `flow:${account.address}`,
-          account.mfa_type,
-          account.profile_location,
-          account.profile_update,
-        ],
-        ts: Math.floor(Date.now() / 1000),
-      },
-      meta: {
-      },
-    };
-    ctx.request.app_sub = account.subject;
-    return provider.interactionFinished(ctx.req, ctx.res, result, {
-      mergeWithLastSubmission: false,
-    });
   });
 
   router.post('/interaction/:uid/wagmi', body, async (ctx) => {
